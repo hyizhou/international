@@ -15,6 +15,7 @@
     <description>系统监控</description>
     <packaging>jar</packaging>
     <properties>
+        <skipTests>true</skipTests>
         <java.version>1.8</java.version>
     </properties>
     <dependencies>

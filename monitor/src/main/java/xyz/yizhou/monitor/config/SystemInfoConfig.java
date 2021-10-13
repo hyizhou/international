@@ -3,10 +3,8 @@ package xyz.yizhou.monitor.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import oshi.SystemInfo;
-import oshi.hardware.CentralProcessor;
-import oshi.hardware.ComputerSystem;
-import oshi.hardware.GlobalMemory;
-import oshi.hardware.HWDiskStore;
+import oshi.hardware.*;
+import xyz.yizhou.monitor.bean.HistoryCpu;
 import xyz.yizhou.monitor.bean.HistoryMemory;
 
 import java.util.ArrayList;
@@ -35,24 +33,42 @@ public class SystemInfoConfig {
 
     /**
      * 磁盘，可能会有多个，因此使用list来存储
-     * @return
      */
     @Bean
-    public List<HWDiskStore> disk(){
+    public List<HWDiskStore> disks(){
         return new ArrayList<>(Arrays.asList(systemInfo.getHardware().getDiskStores()));
     }
 
     /**
      * 硬件信息，如bios，主板等信息
-     * @return
      */
     @Bean
     public ComputerSystem computerSystem(){
         return systemInfo.getHardware().getComputerSystem();
     }
 
+    /**
+     * 网络信息
+     */
+    @Bean
+    public List<NetworkIF> network(){
+        return new ArrayList<>(Arrays.asList(systemInfo.getHardware().getNetworkIFs()));
+    }
+
+    /**
+     * 历史内存信息
+     */
     @Bean
     public HistoryMemory historyMemory(){
         return new HistoryMemory(memory());
+    }
+
+    /**
+     * 历史cpu信息
+     */
+    @Bean
+    public HistoryCpu historyCpu(){
+        systemInfo.getOperatingSystem().getFileSystem();
+        return new HistoryCpu(cpu());
     }
 }
