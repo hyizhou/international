@@ -5,6 +5,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import xyz.yizhou.monitor.bean.HistoryCpu;
 import xyz.yizhou.monitor.bean.HistoryDisk;
+import xyz.yizhou.monitor.bean.HistoryFileSystem;
 import xyz.yizhou.monitor.bean.HistoryMemory;
 
 /**
@@ -21,6 +22,8 @@ public class RecordHistoryTask {
     private HistoryCpu historyCpu;
     @Autowired
     private HistoryDisk hDisk;
+    @Autowired
+    private HistoryFileSystem hFileSystem;
     /**
      * 每秒记录内存信息定时任务
      */
@@ -43,5 +46,10 @@ public class RecordHistoryTask {
     @Scheduled(cron = "0/1 * * * * *")
     public void taskDisk(){
         hDisk.record();
+    }
+
+    @Scheduled(cron = "0/1 * * * * *")
+    public void taskFileSystem(){
+        hFileSystem.record();
     }
 }

@@ -4,9 +4,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import oshi.SystemInfo;
 import oshi.hardware.*;
-import oshi.software.os.OSFileStore;
+import oshi.software.os.FileSystem;
 import xyz.yizhou.monitor.bean.HistoryCpu;
 import xyz.yizhou.monitor.bean.HistoryDisk;
+import xyz.yizhou.monitor.bean.HistoryFileSystem;
 import xyz.yizhou.monitor.bean.HistoryMemory;
 
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ public class SystemInfoConfig {
      */
     @Bean
     public List<HWDiskStore> disks() {
-        return new ArrayList<>(Arrays.asList(systemInfo.getHardware().getDiskStores()));
+        return Arrays.asList(systemInfo.getHardware().getDiskStores());
     }
 
     /**
@@ -59,11 +60,11 @@ public class SystemInfoConfig {
     }
 
     /**
-     * 分区、设备对象
+     * 文件系统对象，可得到分区信息
      */
     @Bean
-    public List<OSFileStore> osFileStore(){
-        return new ArrayList<>(Arrays.asList(systemInfo.getOperatingSystem().getFileSystem().getFileStores()));
+    public FileSystem osFileStore(){
+        return systemInfo.getOperatingSystem().getFileSystem();
     }
 
     /**
@@ -89,5 +90,13 @@ public class SystemInfoConfig {
     @Bean
     public HistoryDisk historyDisk(){
         return new HistoryDisk(disks());
+    }
+
+    /**
+     * 文件系统（可看成分区）历史信息
+     */
+    @Bean
+    public HistoryFileSystem historyFileSystem(){
+        return new HistoryFileSystem(osFileStore());
     }
 }

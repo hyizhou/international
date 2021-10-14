@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HWDiskStore;
+import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import xyz.yizhou.monitor.bean.*;
 
@@ -33,9 +34,11 @@ public class TestControl {
     @Autowired
     private List<HWDiskStore> disks;
     @Autowired
-    private List<OSFileStore> osFileStoreList;
-    @Autowired
     private HistoryDisk historyDisk;
+    @Autowired
+    private FileSystem fileSystem;
+    @Autowired
+    private HistoryFileSystem historyFileSystem;
 
     @GetMapping("/test")
     public String test(){
@@ -125,9 +128,10 @@ public class TestControl {
 
     @GetMapping("/test7")
     public String test7(){
-        int size = osFileStoreList.size();
+        OSFileStore[] osFileStores = fileSystem.getFileStores();
+        int size = osFileStores.length;
         System.out.println("盘符个数："+size);
-        for (OSFileStore osFileStore : osFileStoreList) {
+        for (OSFileStore osFileStore : osFileStores) {
             System.out.println("类型："+osFileStore.getType());
             System.out.println("名称："+osFileStore.getName());
             System.out.println("分区空间："+osFileStore.getTotalSpace());
@@ -152,4 +156,5 @@ public class TestControl {
         }
         return msg.toString();
     }
+
 }
