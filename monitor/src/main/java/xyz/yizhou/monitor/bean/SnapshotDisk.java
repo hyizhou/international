@@ -11,11 +11,9 @@ public class SnapshotDisk {
 
     /** 磁盘总大小 */
     private long size;
-    /** 使用空间大小 */
-    private long useSize;
-    /** 读取速度，单位byte/s */
+    /** 读取速度，单位byte/调用间隔*/
     private double readSpeed;
-    /** 写入速度，单位byte/s */
+    /** 写入速度，单位byte/调用间隔 */
     private double writeSpeed;
 
     /**
@@ -26,7 +24,7 @@ public class SnapshotDisk {
     public static SnapshotDisk snapshot(HWDiskStore disk){
         long lastReadSize = disk.getReadBytes();
         long lastWriteSize = disk.getWriteBytes();
-        // 手动刷新信息
+        // 手动刷新信息，此处也许移到自动任务中刷新比较好，如果其他地方用到硬盘的话，在自动任务中能自动刷新
         disk.updateDiskStats();
         SnapshotDisk snapshot = new SnapshotDisk();
         snapshot.size = disk.getSize();
@@ -35,5 +33,26 @@ public class SnapshotDisk {
         snapshot.readSpeed = (double) (readSize - lastReadSize);
         snapshot.writeSpeed = (double) (writeSize - lastWriteSize);
         return snapshot;
+    }
+
+    public long getSize() {
+        return size;
+    }
+
+    public double getReadSpeed() {
+        return readSpeed;
+    }
+
+    public double getWriteSpeed() {
+        return writeSpeed;
+    }
+
+    @Override
+    public String toString() {
+        return "SnapshotDisk{" +
+                "size=" + size +
+                ", readSpeed=" + readSpeed +
+                ", writeSpeed=" + writeSpeed +
+                '}';
     }
 }

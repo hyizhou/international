@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.RestController;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HWDiskStore;
-import xyz.yizhou.monitor.bean.HistoryCpu;
-import xyz.yizhou.monitor.bean.HistoryMemory;
-import xyz.yizhou.monitor.bean.SnapshotCpu;
+import oshi.software.os.OSFileStore;
+import xyz.yizhou.monitor.bean.*;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,6 +32,10 @@ public class TestControl {
     private HistoryCpu hcpu;
     @Autowired
     private List<HWDiskStore> disks;
+    @Autowired
+    private List<OSFileStore> osFileStoreList;
+    @Autowired
+    private HistoryDisk historyDisk;
 
     @GetMapping("/test")
     public String test(){
@@ -113,6 +117,39 @@ public class TestControl {
         System.out.println(System.currentTimeMillis());
         // 读写花费总时间数
         System.out.println(disk.getTransferTime());
+        System.out.println("硬盘可用空间："+File.listRoots()[0].getFreeSpace());
+        System.out.println("盘符："+File.listRoots()[0].getAbsolutePath());
+
         return "成功，详情看控制台打印";
+    }
+
+    @GetMapping("/test7")
+    public String test7(){
+        int size = osFileStoreList.size();
+        System.out.println("盘符个数："+size);
+        for (OSFileStore osFileStore : osFileStoreList) {
+            System.out.println("类型："+osFileStore.getType());
+            System.out.println("名称："+osFileStore.getName());
+            System.out.println("分区空间："+osFileStore.getTotalSpace());
+            System.out.println("可用空间"+osFileStore.getUsableSpace());
+            System.out.println("逻辑符："+osFileStore.getMount());
+            System.out.println("逻辑卷，仅在linux上有："+osFileStore.getLogicalVolume());
+            System.out.println(osFileStore.getDescription());
+            System.out.println("------------------");
+        }
+        return "查看控制台";
+    }
+
+    @GetMapping("/test8")
+    public String test8(){
+        StringBuilder msg = new StringBuilder();
+        List<List<SnapshotDisk>> history = historyDisk.getHistory();
+        for (List<SnapshotDisk> snapshotDiskList : history) {
+            for (SnapshotDisk snapshotDisk : snapshotDiskList) {
+                msg.append(snapshotDisk.toString()).append(";");
+            }
+            msg.append("</br>");
+        }
+        return msg.toString();
     }
 }
