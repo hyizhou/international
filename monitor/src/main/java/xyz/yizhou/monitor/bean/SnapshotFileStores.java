@@ -1,5 +1,6 @@
 package xyz.yizhou.monitor.bean;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 
@@ -33,6 +34,7 @@ public class SnapshotFileStores implements Iterable<OSFileStore> {
     /**
      * 各分区名称
      */
+    @JSONField(serialize = false)
     public List<String> getPartitionName(){
         List<String> names = new ArrayList<>();
         for (OSFileStore osFileStore : osFileStores) {

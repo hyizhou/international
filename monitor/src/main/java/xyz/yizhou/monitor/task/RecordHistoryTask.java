@@ -48,6 +48,9 @@ public class RecordHistoryTask {
         hDisk.record();
     }
 
+    /**
+     * 每秒记录文件系统使用情况
+     */
     @Scheduled(cron = "0/1 * * * * *")
     public void taskFileSystem(){
         hFileSystem.record();
