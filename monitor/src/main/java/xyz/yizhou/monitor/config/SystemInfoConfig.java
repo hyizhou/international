@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import oshi.SystemInfo;
 import oshi.hardware.*;
 import oshi.software.os.FileSystem;
+import oshi.software.os.NetworkParams;
 import xyz.yizhou.monitor.bean.HistoryCpu;
 import xyz.yizhou.monitor.bean.HistoryDisk;
 import xyz.yizhou.monitor.bean.HistoryFileSystem;
@@ -57,6 +58,10 @@ public class SystemInfoConfig {
     @Bean
     public List<NetworkIF> network() {
         return new ArrayList<>(Arrays.asList(systemInfo.getHardware().getNetworkIFs()));
+    }
+
+    {
+        NetworkParams networkParams = systemInfo.getOperatingSystem().getNetworkParams();
     }
 
     /**
