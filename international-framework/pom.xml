@@ -3,29 +3,25 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.5.5</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <groupId>xyz.hyizhou</groupId>
+        <artifactId>international</artifactId>
+        <version>0.0.1</version>
+        <relativePath>../pom.xml</relativePath> <!-- lookup parent from repository -->
     </parent>
-    <groupId>xyz.hyizhou</groupId>
-    <artifactId>international</artifactId>
+    <groupId>xyz.yizhou</groupId>
+    <artifactId>framework</artifactId>
     <version>0.0.1</version>
-    <name>international</name>
-    <description>international</description>
-    <packaging>pom</packaging>
+    <name>framework</name>
+    <description>核心框架</description>
     <properties>
+        <skipTest>true</skipTest>
         <java.version>1.8</java.version>
     </properties>
-    <modules>
-        <module>monitor</module>
-        <module>international-framework</module>
-    </modules>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
     </dependencies>
 
@@ -34,7 +30,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.5.5</version>
             </plugin>
         </plugins>
     </build>
