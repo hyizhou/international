@@ -1,6 +1,5 @@
 package xyz.yizhou.monitor.util;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -69,16 +68,4 @@ public class FixedQuery<T> {
         return (List) historyMemory;
     }
 
-    public static void main(String[] args) {
-        FixedQuery<Integer> historyMemory = new FixedQuery(2);
-        historyMemory.add(1);
-        historyMemory.add(2);
-        historyMemory.add(3);
-        historyMemory.add(4);
-        System.out.println(historyMemory.len());
-        System.out.println(historyMemory.poll());
-        System.out.println(historyMemory.poll());
-        System.out.println(historyMemory.poll());
-        System.out.println(Arrays.toString(historyMemory.toList().toArray()));
-    }
 }

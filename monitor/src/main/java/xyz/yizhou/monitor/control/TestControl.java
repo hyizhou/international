@@ -1,5 +1,6 @@
 package xyz.yizhou.monitor.control;
 
+import com.alibaba.fastjson.JSON;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,6 +10,7 @@ import oshi.hardware.GlobalMemory;
 import oshi.hardware.HWDiskStore;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
+import oshi.software.os.OperatingSystem;
 import xyz.yizhou.monitor.bean.*;
 
 import java.io.File;
@@ -155,6 +157,13 @@ public class TestControl {
             msg.append("</br>");
         }
         return msg.toString();
+    }
+
+    @Autowired
+    private OperatingSystem operatingSystem;
+    @GetMapping("/test9")
+    public String test9(){
+        return JSON.toJSONString(operatingSystem);
     }
 
 }

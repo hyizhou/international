@@ -6,10 +6,8 @@ import oshi.SystemInfo;
 import oshi.hardware.*;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
-import xyz.yizhou.monitor.bean.HistoryCpu;
-import xyz.yizhou.monitor.bean.HistoryDisk;
-import xyz.yizhou.monitor.bean.HistoryFileSystem;
-import xyz.yizhou.monitor.bean.HistoryMemory;
+import oshi.software.os.OperatingSystem;
+import xyz.yizhou.monitor.bean.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,15 +51,27 @@ public class SystemInfoConfig {
     }
 
     /**
-     * 网络信息
+     * 操作系统
+     */
+    @Bean
+    public OperatingSystem operatingSystem(){
+        return systemInfo.getOperatingSystem();
+    }
+
+    /**
+     * 网卡信息
      */
     @Bean
     public List<NetworkIF> network() {
         return new ArrayList<>(Arrays.asList(systemInfo.getHardware().getNetworkIFs()));
     }
 
-    {
-        NetworkParams networkParams = systemInfo.getOperatingSystem().getNetworkParams();
+    /**
+     * 系统层面网络信息，如ip地址，DNS等
+     */
+    @Bean
+    public NetworkParams networkParams(){
+        return systemInfo.getOperatingSystem().getNetworkParams();
     }
 
     /**
@@ -103,5 +113,13 @@ public class SystemInfoConfig {
     @Bean
     public HistoryFileSystem historyFileSystem(){
         return new HistoryFileSystem(osFileStore());
+    }
+
+    /**
+     * 网络系统历史信息
+     */
+    @Bean
+    public HistoryNet historyNet(){
+        return new HistoryNet(network());
     }
 }
