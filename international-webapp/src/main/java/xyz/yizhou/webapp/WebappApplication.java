@@ -3,6 +3,10 @@ package xyz.yizhou.webapp;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+/**
+ * 前端页面所在项目
+ * @author huanggc
+ */
 @SpringBootApplication
 public class WebappApplication {
 

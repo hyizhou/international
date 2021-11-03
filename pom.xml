@@ -22,6 +22,8 @@
         <module>monitor</module>
         <module>international-framework</module>
         <module>international-webapp</module>
+        <!--这不是个springboot工程-->
+        <module>international-media</module>
     </modules>
     <dependencies>
         <dependency>
