@@ -1,13 +1,13 @@
-package xyz.yizhou.framework;
+package top.hyizhou.framework;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class FrameworkApplication {
+public class FormeworkApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(FrameworkApplication.class, args);
+        SpringApplication.run(FormeworkApplication.class, args);
     }
 
 }

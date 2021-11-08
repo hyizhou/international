@@ -1,10 +1,10 @@
-package xyz.yizhou.framework;
+package top.hyizhou.framework;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class FrameworkApplicationTests {
+class FormeworkApplicationTests {
 
     @Test
     void contextLoads() {
