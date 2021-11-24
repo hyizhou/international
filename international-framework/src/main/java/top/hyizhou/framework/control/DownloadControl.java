@@ -2,7 +2,6 @@ package top.hyizhou.framework.control;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.*;
 import top.hyizhou.framework.service.DownloadService;
@@ -29,11 +28,11 @@ public class DownloadControl {
     /** 路径匹配器 */
     private final AntPathMatcher pathMatcher;
 
-    @Autowired
-    private DownloadService service;
+    private final DownloadService service;
 
-    public DownloadControl(AntPathMatcher pathMatcher) {
+    public DownloadControl(AntPathMatcher pathMatcher, DownloadService service) {
         this.pathMatcher = pathMatcher;
+        this.service = service;
     }
 
     /**

@@ -18,6 +18,7 @@ import java.util.Map;
 @Service
 public class DownloadService {
     private final Logger log = LoggerFactory.getLogger(DownloadService.class);
+    /** 对外开放的目录，key是外部访问的id */
     @Value("#{${download.dirMap}}")
     private Map<String, String> dirMap;
 
