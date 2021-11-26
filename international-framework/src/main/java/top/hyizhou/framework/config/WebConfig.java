@@ -2,7 +2,9 @@ package top.hyizhou.framework.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import top.hyizhou.framework.control.AccessLimitInterceptor;
 
 /**
  * @author huanggc
@@ -11,4 +13,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 @EnableWebMvc
 public class WebConfig implements WebMvcConfigurer {
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        // 过量请求拦截器
+        registry.addInterceptor(new AccessLimitInterceptor());
+        WebMvcConfigurer.super.addInterceptors(registry);
+    }
 }
