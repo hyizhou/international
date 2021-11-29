@@ -1,4 +1,4 @@
-package top.hyizhou.framework.control;
+package top.hyizhou.framework.control.interceptor;
 
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;

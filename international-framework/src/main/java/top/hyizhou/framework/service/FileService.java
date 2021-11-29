@@ -7,17 +7,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.io.*;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /**
- * 文件下载业务Service
+ * 文件处理业务Service
  *
  * @author huanggc
  * @date 2021/11/8 16:42
  */
 @Service
-public class DownloadService {
-    private final Logger log = LoggerFactory.getLogger(DownloadService.class);
+public class FileService {
+    private final Logger log = LoggerFactory.getLogger(FileService.class);
     /** 对外开放的目录，key是外部访问的id */
     @Value("#{${download.dirMap}}")
     private Map<String, String> dirMap;
@@ -60,13 +62,51 @@ public class DownloadService {
     private File absoluteFile(String dirId, String path) throws IOException {
         String dirPath = dirMap.get(dirId);
         if (dirPath == null){
-            throw new IOException("目录id["+dirId+"]不存在");
+            log.error("目录id不存在 - dirId:{}; path:{}", dirId, path);
+            throw new IOException("目录id不存在："+dirId);
         }
         File file = new File(dirPath + File.separator + path);
-        if (!file.exists()) {
-            throw new IOException("指定路径不存在，路径："+file.getPath());
+        if (!file.exists()){
+            log.error("指定路径不存在 - dirId:{}; path:{}; filePath:{}", dirId, path, file.getPath());
+            throw new IOException("指定路径不存在："+file.getPath());
         }
         return file;
     }
+
+    /**
+     * 判断请求路径是否为文件
+     * @param dirId 开放目录id
+     * @param path 请求路径相对地址
+     * @return true则是文件，false则大概率是目录
+     * @throws IOException 当目录id或相对路径不存在或路径所指文件不是普通文件
+     */
+    public boolean isFile(String dirId, String path) throws IOException {
+        File file = absoluteFile(dirId, path);
+        if (file.isDirectory()) {
+            return false;
+        }
+        if (file.isFile()) {
+            return true;
+        }
+        log.error("路径所指文件不是普通文件（可能外接设备）：{}", file.getAbsolutePath());
+        throw new IOException("路径所指既不是普通文件也不是目录："+file.getPath());
+    }
+
+    /**
+     * 返回请求目录下的文件列表。先判断是否为目录，再调用此方法，因为本方法没有进行是否是目录判断。
+     * @param dirId 开放目录id
+     * @param path 请求路径相对地址
+     * @return 文件列表
+     */
+    public List<File> listFile(String dirId, String path) throws IOException {
+        File file = absoluteFile(dirId, path);
+        File[] subFiles = file.listFiles();
+        if (subFiles == null){
+            return null;
+        }
+        return Arrays.asList(subFiles);
+    }
+
+
 
 }
