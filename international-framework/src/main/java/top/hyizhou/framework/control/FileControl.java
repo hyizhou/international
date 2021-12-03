@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
 /**
@@ -88,13 +87,19 @@ public class FileControl {
      * @param id 多个开放目录时指对应目录的id
      */
     @GetMapping(value = FileControl.DIR_URL+ "/{id}/**")
-    public void fileList(@PathVariable("id")  String id, HttpServletResponse response, HttpServletRequest request) throws UnsupportedEncodingException {
+    public void fileList(@PathVariable("id")  String id, HttpServletResponse response, HttpServletRequest request) throws IOException {
         String uri = request.getRequestURI();
         // 中文解码
         uri = URLDecoder.decode(uri,"utf-8");
         String path = pathMatcher.extractPathWithinPattern(FileControl.DIR_URL + "/" + id + "*", uri);
         log.info("请求目录id：{}，请求文件路径：{}",id , path);
-
+        if (service.isFile(id, path)) {
+            // 是文件执行下载
+            doDown(response, id, path);
+        }else {
+            // TODO 不是文件则返回目录列表
+            log.info("展开了文件列表");
+        }
 
     }
 }
