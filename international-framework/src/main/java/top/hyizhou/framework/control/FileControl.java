@@ -4,6 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import top.hyizhou.framework.entity.Resp;
+import top.hyizhou.framework.entity.SimpleFileInfo;
 import top.hyizhou.framework.service.FileService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -11,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLDecoder;
+import java.util.List;
 
 /**
  * 文件下载与目录展示接口
@@ -51,16 +55,6 @@ public class FileControl {
         log.info("下载路径：{}", filePath);
         log.info("下载目录id：{}", dir);
         doDown(response, dir, filePath);
-
-//        try(OutputStream out = response.getOutputStream()) {
-//            // 输入流写入文件
-//            String fileName = service.pushFileStream(out, dir, filePath);
-//            response.setCharacterEncoding("utf-8");
-//            response.setContentType("application/octet-stream; charset=utf-8");
-//            response.setHeader("Content-Disposition","attachment;filename="+fileName);
-//        } catch (IOException e) {
-//            log.error("异常：",e);
-//        }
     }
 
     /**
@@ -87,19 +81,31 @@ public class FileControl {
      * @param id 多个开放目录时指对应目录的id
      */
     @GetMapping(value = FileControl.DIR_URL+ "/{id}/**")
-    public void fileList(@PathVariable("id")  String id, HttpServletResponse response, HttpServletRequest request) throws IOException {
+    public Resp<List<SimpleFileInfo>> fileList(@PathVariable("id")  String id, HttpServletResponse response, HttpServletRequest request) throws IOException {
         String uri = request.getRequestURI();
         // 中文解码
         uri = URLDecoder.decode(uri,"utf-8");
-        String path = pathMatcher.extractPathWithinPattern(FileControl.DIR_URL + "/" + id + "*", uri);
+        String path = pathMatcher.extractPathWithinPattern(FileControl.DIR_URL + "/" + id + "/*", uri);
         log.info("请求目录id：{}，请求文件路径：{}",id , path);
         if (service.isFile(id, path)) {
             // 是文件执行下载
+            log.info("执行文件下载");
             doDown(response, id, path);
+            return null;
         }else {
-            // TODO 不是文件则返回目录列表
+            // 展开目录
             log.info("展开了文件列表");
+            return service.getListFile(id, path);
         }
 
+    }
+
+    /**
+     * 文件上传
+     * @return 若是成功状态，返回200
+     */
+    @PostMapping(value = "/upload")
+    public Resp<String> upload(@RequestParam(value = "file") MultipartFile file){
+        return service.upload(file);
     }
 }

@@ -5,9 +5,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
+import top.hyizhou.framework.entity.Resp;
+import top.hyizhou.framework.entity.SimpleFileInfo;
 
 import java.io.*;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -98,13 +101,49 @@ public class FileService {
      * @param path 请求路径相对地址
      * @return 文件列表
      */
-    public List<File> listFile(String dirId, String path) throws IOException {
+    public Resp<List<SimpleFileInfo>> getListFile(String dirId, String path) throws IOException {
         File file = absoluteFile(dirId, path);
+        log.info("展开完整路径：{}", file.getAbsolutePath());
+        List<SimpleFileInfo> req = new ArrayList<>();
         File[] subFiles = file.listFiles();
         if (subFiles == null){
             return null;
         }
-        return Arrays.asList(subFiles);
+        for (File subFile : subFiles) {
+            req.add(new SimpleFileInfo(subFile.getName(), subFile.isDirectory()));
+        }
+        return Resp.success(req);
+    }
+
+
+    /**
+     * 处理文件上传的具体方法
+     * 理论处理流程：得到文件，存储文件，生成id，返回id。用户通过id取得文件
+     * @param file 文件流
+     * @return 响应对象
+     */
+    public Resp<String> upload(MultipartFile file){
+        if (null == file || file.isEmpty()){
+            return Resp.failed("400", "file not exists");
+        }
+        // 通过毫秒数生成唯一文件名
+        String saveName = System.currentTimeMillis() + "." + file.getOriginalFilename();
+        String saveDir = dirMap.get("saveDir");
+        if (saveDir == null){
+            log.error("未配置saveDir路径，即文件上传保存路径");
+            return Resp.failed("500", "error");
+        }
+        File currFile = new File(saveDir + File.separator + saveName);
+        if (!currFile.getParentFile().exists()) {
+            currFile.getParentFile().mkdirs();
+        }
+        try {
+            file.transferTo(currFile);
+        } catch (IOException e) {
+            log.error("存储文件异常:",e);
+            return Resp.failed("500", "存储文件异常");
+        }
+        return Resp.success(saveName);
     }
 
 
