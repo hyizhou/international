@@ -2,6 +2,10 @@ package top.hyizhou.framework.control;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -9,6 +13,7 @@ import top.hyizhou.framework.entity.Resp;
 import top.hyizhou.framework.entity.SimpleFileInfo;
 import top.hyizhou.framework.service.FileService;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -63,7 +68,7 @@ public class FileControl {
     private void doDown(HttpServletResponse response, String dirId, String path) throws IOException {
         try(OutputStream out = response.getOutputStream()) {
             // 输入流写入文件
-            String fileName = service.pushFileStream(out, dirId, path);
+            String fileName = service.writeStream(out, dirId, path);
             response.setCharacterEncoding("utf-8");
             response.setContentType("application/octet-stream; charset=utf-8");
             response.setHeader("Content-Disposition","attachment;filename="+fileName);
@@ -95,7 +100,7 @@ public class FileControl {
         }else {
             // 展开目录
             log.info("展开了文件列表");
-            return service.getListFile(id, path);
+            return service.getDirectoryList(id, path);
         }
 
     }
@@ -107,5 +112,14 @@ public class FileControl {
     @PostMapping(value = "/upload")
     public Resp<String> upload(@RequestParam(value = "file") MultipartFile file){
         return service.upload(file);
+    }
+
+    @GetMapping(value = "/download/{id:.*}")
+    public ResponseEntity<Resource> download(@PathVariable String id, ServletRequest request){
+        Resource resource = service.download(id);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
     }
 }

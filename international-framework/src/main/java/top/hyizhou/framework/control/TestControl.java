@@ -1,5 +1,6 @@
 package top.hyizhou.framework.control;
 
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import top.hyizhou.framework.utils.AccessLimit;
@@ -11,8 +12,9 @@ import top.hyizhou.framework.utils.AccessLimit;
 @RequestMapping("/test")
 @RestController
 public class TestControl {
-    @RequestMapping("/1")
-    public String test1(){
+    @RequestMapping("/oo/{f:.*}")
+    public String test1(@PathVariable String f){
+        System.out.println(f);
         return "ok";
     }
 
