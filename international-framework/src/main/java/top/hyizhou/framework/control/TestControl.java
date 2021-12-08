@@ -1,16 +1,16 @@
 package top.hyizhou.framework.control;
 
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import top.hyizhou.framework.utils.AccessLimit;
 
 /**
  * @author huanggc
  * @date 2021/11/26 11:02
  */
-@RequestMapping("/test")
-@RestController
+@Controller
 public class TestControl {
     @RequestMapping("/oo/{f:.*}")
     public String test1(@PathVariable String f){
@@ -18,9 +18,21 @@ public class TestControl {
         return "ok";
     }
 
-    @RequestMapping("/2")
+    @RequestMapping("/test/2")
     @AccessLimit(seconds = 5, maxCount = 1)
     public String test2(){
         return "okk";
+    }
+
+
+    @RequestMapping("/test/3")
+    public String test3(Model model){
+        model.addAttribute("msg", "hello word");
+        return "hello";
+    }
+
+    @RequestMapping("/test/4")
+    public String test4(){
+        return "hello";
     }
 }

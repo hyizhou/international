@@ -13,7 +13,6 @@ import top.hyizhou.framework.entity.Resp;
 import top.hyizhou.framework.entity.SimpleFileInfo;
 import top.hyizhou.framework.service.FileService;
 
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -30,8 +29,6 @@ import java.util.List;
 @RequestMapping()
 @CrossOrigin(origins = "*")
 public class FileControl {
-    /** 文件下载业务请求路径 */
-    static private final String DOWNLOAD_URI = "/download";
     static private final String DIR_URL = "/dir";
     private final Logger log = LoggerFactory.getLogger(FileControl.class);
     /** 路径匹配器 */
@@ -44,23 +41,6 @@ public class FileControl {
         this.service = service;
     }
 
-    /**
-     * 进行文件下载
-     * 路径模式：xxx.com/download/目录/详细路径...
-     * @param response 响应
-     * @param request 请求
-     */
-    @GetMapping(value= FileControl.DOWNLOAD_URI +"/{dir}/**",produces = "application/json;charset=UTF-8")
-    public void fileDownload(@PathVariable("dir") String dir, HttpServletResponse response, HttpServletRequest request) throws IOException {
-        String uri = request.getRequestURI();
-        // 带中文或空格需要使用此方法解码回来
-        uri = URLDecoder.decode(uri,"utf-8");
-        System.out.println(request.getCharacterEncoding());
-        String filePath = pathMatcher.extractPathWithinPattern(DOWNLOAD_URI+"/"+dir+"/*", uri);
-        log.info("下载路径：{}", filePath);
-        log.info("下载目录id：{}", dir);
-        doDown(response, dir, filePath);
-    }
 
     /**
      * 对文件下载任务进行处理
@@ -115,7 +95,7 @@ public class FileControl {
     }
 
     @GetMapping(value = "/download/{id:.*}")
-    public ResponseEntity<Resource> download(@PathVariable String id, ServletRequest request){
+    public ResponseEntity<Resource> download(@PathVariable String id){
         Resource resource = service.download(id);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))

@@ -13,7 +13,7 @@ public class ViewControl {
     /**
      * 主页
      */
-    @GetMapping("/")
+    @GetMapping(value = {"/", "/index", "/index.html"})
     public String index() {
         return "index";
     }

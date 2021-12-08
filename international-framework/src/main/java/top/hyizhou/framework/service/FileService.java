@@ -13,6 +13,7 @@ import top.hyizhou.framework.entity.SimpleFileInfo;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +33,11 @@ public class FileService {
     private Map<String, String> dirMap;
     @Value("${file.upload.path}")
     private String transferStation;
+    private final Map<String, File> transferMap;
+
+    public FileService(){
+        transferMap = new HashMap<>();
+    }
 
     /**
      * 像输出流中写入数据
@@ -155,17 +161,34 @@ public class FileService {
             log.error("存储文件异常:", e);
             return Resp.failed("500", "存储文件异常");
         }
-        log.info("存储文件[{}]成功", file.getOriginalFilename());
-        // TODO 应返回生成的文件id
-        return Resp.success(saveName);
+        String id = random();
+        transferMap.put(id, currFile);
+        log.info("存储文件[{}]成功：{}", file.getOriginalFilename(), currFile.getAbsolutePath());
+        return Resp.success(id);
     }
 
+    /**
+     * 通过id下载上传文件
+     * @param id 上传文件时生成的id
+     * @return 返回文件资源
+     */
     public Resource download(String id) {
-        System.out.println(id);
-        // TODO 根据id返回
-        return new PathResource("D:/bb.txt");
+        File file = transferMap.get(id);
+        return new PathResource(file.toPath());
 
     }
 
+    /**
+     * 生成随机8位数字id，用作上传文件key
+     * @return 随机id字符
+     */
+    private String random(){
+        String s;
+        do {
+            s = String.valueOf((int) (Math.random() * 100000000));
+            // 检查id是否重复
+        }while (transferMap.containsKey(s));
+        return s;
+    }
 
 }
