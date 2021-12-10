@@ -11,10 +11,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class ViewControl {
     /**
-     * 主页
+     * 主页、上传页面
      */
-    @GetMapping(value = {"/", "/index", "/index.html"})
+    @GetMapping(value = {"/", "/index", "/index.html","/upload"})
     public String index() {
         return "index";
+    }
+
+    @GetMapping(value = "/aria2")
+    public String aria2(){
+        return "redirect:/aria2/index.html";
     }
 }

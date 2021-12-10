@@ -30,11 +30,11 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <!--微软语音客户端-->
-        <dependency>
-            <groupId>com.microsoft.cognitiveservices.speech</groupId>
-            <artifactId>client-sdk</artifactId>
-            <version>1.19.0</version>
-        </dependency>
+        <!--<dependency>-->
+        <!--    <groupId>com.microsoft.cognitiveservices.speech</groupId>-->
+        <!--    <artifactId>client-sdk</artifactId>-->
+        <!--    <version>1.19.0</version>-->
+        <!--</dependency>-->
 
     </dependencies>
 
