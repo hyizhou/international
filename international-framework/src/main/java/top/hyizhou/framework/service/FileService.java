@@ -115,7 +115,7 @@ public class FileService {
      * @param path  请求路径相对地址
      * @return 文件列表
      */
-    public Resp<List<SimpleFileInfo>> getDirectoryList(String dirId, String path) throws IOException {
+    public List<SimpleFileInfo> getDirectoryList(String dirId, String path) throws IOException {
         File file = absoluteFile(dirId, path);
         log.info("展开完整路径：{}", file.getAbsolutePath());
         List<SimpleFileInfo> req = new ArrayList<>();
@@ -126,7 +126,7 @@ public class FileService {
         for (File subFile : subFiles) {
             req.add(new SimpleFileInfo(subFile.getName(), subFile.isDirectory()));
         }
-        return Resp.success(req);
+        return req;
     }
 
 

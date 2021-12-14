@@ -9,16 +9,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 import top.hyizhou.framework.entity.Resp;
-import top.hyizhou.framework.entity.SimpleFileInfo;
 import top.hyizhou.framework.service.FileService;
+import top.hyizhou.framework.utils.UrlUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLDecoder;
-import java.util.List;
 
 /**
  * 文件下载与目录展示接口
@@ -65,8 +65,8 @@ public class FileControl {
      * 2、若请求路径是文件，则进行文件下载，如：localhost/1/work/video/day1.mp4，将下载day1.mp4文件。<br/>
      * @param id 多个开放目录时指对应目录的id
      */
-    @GetMapping(value = FileControl.DIR_URL+ "/{id}/**")
-    public Resp<List<SimpleFileInfo>> fileList(@PathVariable("id")  String id, HttpServletResponse response, HttpServletRequest request) throws IOException {
+    @GetMapping(value = "dir/{id}/**")
+    public ModelAndView fileList(@PathVariable("id")  String id, HttpServletResponse response, HttpServletRequest request) throws IOException {
         String uri = request.getRequestURI();
         // 中文解码
         uri = URLDecoder.decode(uri,"utf-8");
@@ -79,8 +79,15 @@ public class FileControl {
             return null;
         }else {
             // 展开目录
+            uri = UrlUtil.formatSuffix(uri);
+            uri = UrlUtil.format(uri);
+            log.info(uri);
             log.info("展开了文件列表");
-            return service.getDirectoryList(id, path);
+            ModelAndView view = new ModelAndView("dir");
+            view.addObject("subFileList", service.getDirectoryList(id, path));
+            view.addObject("dirPath", "/"+path);
+            view.addObject("urlPath", uri);
+            return view;
         }
 
     }
