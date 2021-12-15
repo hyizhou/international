@@ -4,6 +4,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import top.hyizhou.framework.utils.AccessLimit;
 
 /**
@@ -25,7 +26,8 @@ public class TestControl {
     }
 
 
-    @RequestMapping("/test/3")
+    @RequestMapping(value = {"/test/[3]","/test/3"})
+    @ResponseBody
     public String test3(Model model){
         int[] list = {1,2,3,3,4,5};
         model.addAttribute("msg", "hello word");

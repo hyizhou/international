@@ -10,6 +10,7 @@ import java.util.Arrays;
 public class UrlUtil {
     private static final String JOINER = "/";
 
+
     /**
      * 格式化url后缀，添加"/"
      * @param url 资源定位符
@@ -23,11 +24,11 @@ public class UrlUtil {
     }
 
     /**
-     * 解析url地址，将每个地址元素取出，注意：若是带有参数的地址，参数将被丢掉
+     * 对url地址使用'/'切片，将地址元素提取为数组，注意：若是带有参数的地址，参数将被丢掉
      * @param url 资源定位符
      * @return 存储地址元素的数组
      */
-    public static String[] analyze(String url){
+    public static String[] split(String url){
         String[] split = url.split("/");
         String[] reply = new String[split.length];
         int index = 0;
@@ -61,8 +62,37 @@ public class UrlUtil {
         return strB.toString();
     }
 
+    /**
+     * 得到上一级url
+     * @param url 资源定位符/网址
+     * @return 上一级资源地址，若返回null，则表示没有上一级或url为空
+     */
+    public static String parentUrl(String url){
+        // 判断是否为空，或是否为顶级目录
+        if (StrUtil.isEmpty(url)) {
+            return null;
+        }
+        String[] split = split(url);
+        if (split.length == 1){
+            return null;
+        }
+        StringBuilder reply = new StringBuilder();
+        // 若url开头有/，不能丢掉
+        if (url.startsWith(JOINER)) {
+            reply.append(JOINER);
+        }
+        for (int i = 0; i < split.length - 1; i++) {
+            reply.append(split[i]).append(JOINER);
+        }
+
+        return reply.toString();
+    }
+
     public static void main(String[] args) {
         String a = "http:///a//dfsda/dafg///ghdf/g/gfdg//";
+        a = "localhost:8080/////a////kk/";
+        System.out.println(split(a).length);
         System.out.println(format(a));
+        System.out.println(parentUrl(a));
     }
 }

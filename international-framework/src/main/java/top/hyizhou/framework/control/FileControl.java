@@ -22,6 +22,7 @@ import java.net.URLDecoder;
 
 /**
  * 文件下载与目录展示接口
+ * bug: url中存在[]方括号这种情况会tomcat会404
  * @author huanggc
  * @date 2021/11/8 15:26
  */
@@ -87,6 +88,7 @@ public class FileControl {
             view.addObject("subFileList", service.getDirectoryList(id, path));
             view.addObject("dirPath", "/"+path);
             view.addObject("urlPath", uri);
+            view.addObject("parentUrl", UrlUtil.parentUrl(uri));
             return view;
         }
 
