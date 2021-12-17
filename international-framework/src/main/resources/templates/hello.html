@@ -5,32 +5,9 @@
     <title>Insert title here</title>
 </head>
 <body>
-<div th:text="${msg}"></div>
-<a th:href="@{'/test/'+${oo}+'/aaaa'}" th:text="${oo}">Thymeleaf</a>
-<a th:href="@{/test/{oo}/aaa(oo=${oo})}" th:text="${oo}">Thymeleaf</a>
-<div th:object="${class}">
-    <p th:text="|这有个数-*{a}|"></p>
-    <p th:text="|这有个数-*{a} 在加上${oo}|"></p>
-    <p th:text="*{b}"></p>
-    <p th:text="*{c}"></p>
-</div>
-<div>
-    <p th:text="(1&lt;2)"></p>
-    <p th:text="(${class.a}>2 ? 1:2)"></p>
-    <p th:text="'1+1='+(1+1==2)"></p>
-</div>
-<h3>循环</h3>
-<p th:each="i,j:${list}" th:text="${i}+'--'+${j}"></p>
-<p th:if="false"> if显示 </p>
-<p th:unless="false"> unless显示 </p>
+<p th:text="${param.a[0]}"></p>
+<p th:text="${param.a[1]}"></p>
+<p th:each="aa:${param.a}" th:text="${aa}"></p>
+<p th:text="${@antPathMatcher}"></p>
 </body>
-<h3>swhitch</h3>
-<div th:switch="${oo}">
-    <p th:case="'4'"> '4' </p>
-    <p th:case="4"> 4 </p>
-    <p th:case="'3'"> 3 </p>
-    <p th:case="'2'"> 2 </p>
-    <p th:case="'1'"> 1 </p>
-    <p th:case="*"> * </p>
-</div>
 </html>

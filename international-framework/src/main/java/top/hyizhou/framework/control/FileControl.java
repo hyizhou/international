@@ -22,7 +22,7 @@ import java.net.URLDecoder;
 
 /**
  * 文件下载与目录展示接口
- * bug: url中存在[]方括号这种情况会tomcat会404
+ * bug: url中存在[]方括号这种情况会tomcat会404，请求都不会到springmvc里面
  * @author huanggc
  * @date 2021/11/8 15:26
  */
@@ -69,6 +69,7 @@ public class FileControl {
     @GetMapping(value = "dir/{id}/**")
     public ModelAndView fileList(@PathVariable("id")  String id, HttpServletResponse response, HttpServletRequest request) throws IOException {
         String uri = request.getRequestURI();
+        String primevalUri = uri;
         // 中文解码
         uri = URLDecoder.decode(uri,"utf-8");
         String path = pathMatcher.extractPathWithinPattern(FileControl.DIR_URL + "/" + id + "/*", uri);
@@ -80,14 +81,19 @@ public class FileControl {
             return null;
         }else {
             // 展开目录
+            uri = primevalUri;
             uri = UrlUtil.formatSuffix(uri);
             uri = UrlUtil.format(uri);
             log.info(uri);
             log.info("展开了文件列表");
             ModelAndView view = new ModelAndView("dir");
+            // 目录中文件列表
             view.addObject("subFileList", service.getDirectoryList(id, path));
+            // 当前目录路径
             view.addObject("dirPath", "/"+path);
+            // 当前url路径，用于拼接为众多子路径
             view.addObject("urlPath", uri);
+            // 当前url父路径，用于返回上一级
             view.addObject("parentUrl", UrlUtil.parentUrl(uri));
             return view;
         }
