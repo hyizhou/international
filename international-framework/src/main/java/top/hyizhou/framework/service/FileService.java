@@ -117,7 +117,7 @@ public class FileService {
      */
     public List<SimpleFileInfo> getDirectoryList(String dirId, String path) throws IOException {
         File file = absoluteFile(dirId, path);
-        log.info("展开完整路径：{}", file.getAbsolutePath());
+        log.info("展开目录路径：{}", file.getAbsolutePath());
         List<SimpleFileInfo> req = new ArrayList<>();
         File[] subFiles = file.listFiles();
         if (subFiles == null) {

@@ -11,12 +11,12 @@
 <div>
     <a th:if="${dirPath} ne '/'" th:href="${parentUrl}">上一级</a>
     <div th:each="subFile:${subFileList}" th:if="${subFile.isDirectory}">
-        <a th:text="${subFile.name}" th:with="uu=${T(top.hyizhou.framework.utils.UrlUtil).encode(urlPath+subFile.name)}"
+        <a th:text="${subFile.name}" th:with="uu=${urlPath + T(top.hyizhou.framework.utils.UrlUtil).encode(subFile.name)}"
            style="color: orange" th:href="${uu}"></a><br/>
     </div>
     <div th:each="subFile:${subFileList}" th:unless="${subFile.isDirectory}">
         <a th:text="${subFile.getName()}"
-           th:with="uu=${T(top.hyizhou.framework.utils.UrlUtil).encode(urlPath+subFile.name)}" style="color: black"
+           th:with="uu=${urlPath + T(top.hyizhou.framework.utils.UrlUtil).encode(subFile.name)}" style="color: black"
            th:href="${uu}"></a><br/>
     </div>
 </div>

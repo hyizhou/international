@@ -50,6 +50,7 @@ public class FileControl {
         try(OutputStream out = response.getOutputStream()) {
             // 输入流写入文件
             String fileName = service.writeStream(out, dirId, path);
+            log.info("下载文件：{}",fileName);
             response.setCharacterEncoding("utf-8");
             response.setContentType("application/octet-stream; charset=utf-8");
             response.setHeader("Content-Disposition","attachment;filename="+fileName);
@@ -73,10 +74,9 @@ public class FileControl {
         // 中文解码
         uri = URLDecoder.decode(uri,"utf-8");
         String path = pathMatcher.extractPathWithinPattern(FileControl.DIR_URL + "/" + id + "/*", uri);
-        log.info("请求目录id：{}，请求文件路径：{}",id , path);
+        log.info("原始请求路径：{}", uri);
         if (service.isFile(id, path)) {
             // 是文件执行下载
-            log.info("执行文件下载");
             doDown(response, id, path);
             return null;
         }else {
@@ -84,8 +84,6 @@ public class FileControl {
             uri = primevalUri;
             uri = UrlUtil.formatSuffix(uri);
             uri = UrlUtil.format(uri);
-            log.info(uri);
-            log.info("展开了文件列表");
             ModelAndView view = new ModelAndView("dir");
             // 目录中文件列表
             view.addObject("subFileList", service.getDirectoryList(id, path));
