@@ -100,19 +100,45 @@ public class FileControl {
 
     /**
      * 文件上传
-     * @return 若是成功状态，返回200
+     * @return 若是成功状态，返回文件详情页面
      */
     @PostMapping(value = "/upload")
     public Resp<String> upload(@RequestParam(value = "file") MultipartFile file){
         return service.upload(file);
     }
 
-    @GetMapping(value = "/download/{id:.*}")
+    /**
+     * 上传文件后，使用本接口进行文件获取
+     * @param id 文件id
+     * @return 文件资源
+     */
+    @GetMapping(value = "/upload/get/{id:.*}")
     public ResponseEntity<Resource> download(@PathVariable String id){
         Resource resource = service.download(id);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
+                // 文件名需要解析一下
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
                 .body(resource);
+    }
+
+    /**
+     * 文件上传后的文件详情页面
+     * @param id 文件对应的id
+     */
+    @GetMapping(value = "/upload/detail/{id}")
+    public ModelAndView uploadDetail(ModelAndView modelAndView, @PathVariable("id") String id){
+        System.out.println("文件详情页id："+id);
+        modelAndView.setViewName("upload/detail");
+        return modelAndView;
+    }
+
+    /**
+     * 上传目录所有文件的文件列表
+     */
+    @GetMapping(value = "/upload/ls")
+    public ModelAndView uploadLs(ModelAndView view){
+        view.setViewName("upload/list");
+        return view;
     }
 }
