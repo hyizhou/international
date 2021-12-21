@@ -10,7 +10,7 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
-import top.hyizhou.framework.entity.Resp;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import top.hyizhou.framework.service.FileService;
 import top.hyizhou.framework.utils.UrlUtil;
 
@@ -100,11 +100,19 @@ public class FileControl {
 
     /**
      * 文件上传
-     * @return 若是成功状态，返回文件详情页面
+     * TODO 判断文件hash值，已经上传的文件就不要重复存储了
+     * @return 若是成功状态，则重定向到文件详情页面
      */
     @PostMapping(value = "/upload")
-    public Resp<String> upload(@RequestParam(value = "file") MultipartFile file){
-        return service.upload(file);
+    public ModelAndView upload(@RequestParam(value = "file") MultipartFile file, RedirectAttributes model){
+        String[] infos = service.upload(file).getBody();
+
+        ModelAndView view = new ModelAndView("redirect:upload/detail/"+infos[0]);
+//        view.addObject("isJustNow", true);
+//        view.addObject("info", infos);
+        model.addFlashAttribute("isJustNow", true);
+        model.addFlashAttribute("info", infos);
+        return view;
     }
 
     /**
@@ -118,19 +126,20 @@ public class FileControl {
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 // 文件名需要解析一下
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + service.readName(resource.getFilename()) + "\"")
                 .body(resource);
     }
 
     /**
-     * 文件上传后的文件详情页面
+     * 文件上传后的文件详情页面、
+     * TODO 若id不存在的情况，应返回“不存在”的提示页面，而不是返回500错误
      * @param id 文件对应的id
      */
     @GetMapping(value = "/upload/detail/{id}")
-    public ModelAndView uploadDetail(ModelAndView modelAndView, @PathVariable("id") String id){
+    public ModelAndView uploadDetail(@ModelAttribute("isJustNow") Boolean isJustNow ,@ModelAttribute("info") String[] infos, @PathVariable("id") String id){
         System.out.println("文件详情页id："+id);
-        modelAndView.setViewName("upload/detail");
-        return modelAndView;
+        ModelAndView view = new ModelAndView("upload/detail");
+        return view;
     }
 
     /**

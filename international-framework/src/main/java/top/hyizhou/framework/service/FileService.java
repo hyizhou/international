@@ -10,8 +10,10 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import top.hyizhou.framework.entity.Resp;
 import top.hyizhou.framework.entity.SimpleFileInfo;
+import top.hyizhou.framework.utils.StrUtil;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,12 +33,14 @@ public class FileService {
      */
     @Value("#{${file.download.map}}")
     private Map<String, String> dirMap;
+    /** 上传文件存储目录 */
     @Value("${file.upload.path}")
-    private String transferStation;
-    private final Map<String, File> transferMap;
+    private String uploadPath;
+    /** 上传目录文件id对应关系，TODO 应在初始化时加载目录中文件 */
+    private final Map<String, File> uploadMap;
 
     public FileService(){
-        transferMap = new HashMap<>();
+        uploadMap = new HashMap<>();
     }
 
     /**
@@ -132,18 +136,27 @@ public class FileService {
 
     /**
      * 处理文件上传的具体方法
-     * 理论处理流程：得到文件，存储文件，生成id，返回id。用户通过id取得文件
+     * 理论处理流程：得到文件，在文件名上面添加必要信息，重命名文件后存储，将文件详情返回
+     * id值生成规则：时间戳+3位随机数
+     * 文件名生成规则：id+'-'+下载次数+'-'+文件名，即使用短横线分隔
      *
+     * 问题：将id、下载次数这些放到数据库更好，但是目前（21/12/21）还没有加数据库，所有暂时这样吧；
+     *      文件名存储数据方式需要IO操作，太慢了
      * @param file 文件流
      * @return 响应对象
      */
-    public Resp<String> upload(MultipartFile file) {
+    public Resp<String[]> upload(MultipartFile file) {
         if (null == file || file.isEmpty()) {
             return Resp.failed("400", "file not exists");
         }
-        // 通过毫秒数生成唯一文件名
-        String saveName = System.currentTimeMillis() + "." + file.getOriginalFilename();
-        String saveDir = transferStation;
+        // 调用生成文件名的方法
+        String saveName = createFileName(file.getOriginalFilename());
+        String[] analyze = analyzeFileName(saveName);
+        if (analyze == null){
+            log.error("上传文件文件名生成异常");
+            throw new RuntimeException("文件名生成异常");
+        }
+        String saveDir = uploadPath;
         if (saveDir == null) {
             log.error("未配置saveDir路径，即文件上传保存路径");
             return Resp.failed("500", "error");
@@ -161,10 +174,13 @@ public class FileService {
             log.error("存储文件异常:", e);
             return Resp.failed("500", "存储文件异常");
         }
-        String id = random();
-        transferMap.put(id, currFile);
+        String id = analyze[0];
+        // 将文件id存储到map，加快索引
+        uploadMap.put(id, currFile);
         log.info("存储文件[{}]成功：{}", file.getOriginalFilename(), currFile.getAbsolutePath());
-        return Resp.success(id);
+        SimpleDateFormat time = new SimpleDateFormat("yyyy年MM月dd HH:mm:ss");
+        analyze[1] = time.format(Long.valueOf(analyze[1]));
+        return Resp.success(analyze);
     }
 
     /**
@@ -173,22 +189,84 @@ public class FileService {
      * @return 返回文件资源
      */
     public Resource download(String id) {
-        File file = transferMap.get(id);
+        File file = uploadMap.get(id);
         return new PathResource(file.toPath());
 
     }
 
+
     /**
-     * 生成随机8位数字id，用作上传文件key
-     * @return 随机id字符
+     * 根据上传文件名生成服务器存储文件名
+     * @param file 上传文件原始名称
+     * @return 处理后文件名规范:[id]-[下载次数]-[真实文件名]
      */
-    private String random(){
-        String s;
-        do {
-            s = String.valueOf((int) (Math.random() * 100000000));
-            // 检查id是否重复
-        }while (transferMap.containsKey(s));
-        return s;
+    private String createFileName(String file){
+        String join = "-";
+        String id = System.currentTimeMillis() + String.format("%3d", (int) (Math.random() * 1000)).replace(" ", "0");
+        return id+join+"0"+join+file;
+    }
+
+    private String increaseDownloadNum(String file){
+        String[] analyse = analyzeFileName(file);
+        if (analyse == null){
+            throw new RuntimeException("文件名不正确: "+file);
+        }
+        int newNum = Integer.parseInt(analyse[2]) + 1;
+        return analyse[0]+"-"+newNum+"-"+analyse[3];
+    }
+
+    public String readName(String fileName){
+        String[] readName = analyzeFileName(fileName);
+        if (readName == null){
+            log.error("文件名解析失败，请查看上面错误日志");
+            throw new RuntimeException("文件名解析失败");
+        }
+        return readName[3];
+    }
+
+    /**
+     * 解析上传文件存储的文件名，从中提取出有用信息
+     * @param fileName 文件名，规范文件名:[id]-[下载次数]-[真实文件名]
+     * @return 数组，里面数据为:[id，存储时间，下载次数，文件原始名]，若为null则表示文件名不规范
+     */
+    private String[] analyzeFileName(String fileName){
+        // 分隔符个数
+        int splitNum = 3;
+        // id长度
+        int idLen = 16;
+        if (StrUtil.isEmpty(fileName)) {
+            log.error("所解析扥文件名为空");
+            return null;
+        }
+        String[] split = fileName.split("-");
+        // 分割后少于三份，则文件名有问题，大于三份是允许的，文件实际名称中可能也存在"-"
+        if (split.length < splitNum){
+            log.error("文件名命名不规范：{}", fileName);
+            return null;
+        }
+        // 判断id规范，判断的目的防止其他文件不小心进入上传目录
+        if (split[0].length() != idLen || !StrUtil.isInteger(split[0])){
+            log.error("文件id不规范(长度应16且全为数字)，文件名：[{}]、", fileName);
+            return null;
+        }
+        // 下载次数不为数字或小于0
+        if (!StrUtil.isInteger(split[1]) || Integer.parseInt(split[1]) < 0){
+            log.error("文件下载次数异常 - 文件名：{}",fileName);
+            return null;
+        }
+        String id = split[0];
+        String downNum = split[1];
+        String fileRealName = fileName.substring(StrUtil.indexOf(fileName, "-", 2)+1);
+        // 取十三位时间戳
+        String saveTime = id.substring(0, 13);
+        return new String[]{id, saveTime, downNum, fileRealName};
+    }
+
+    public static void main(String[] args) {
+        for (int i = 0; i < 100; i++) {
+            System.out.println(String.format("%3d", (int) (Math.random() * 1000)).replace(" ", "0"));
+        }
+
     }
 
 }
