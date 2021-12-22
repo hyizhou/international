@@ -59,7 +59,7 @@ public class FileService {
                 continue;
             }
             String id = analyzeResult[0];
-            log.info("上传容器添加文件：{}", file.getAbsolutePath());
+            log.info("索引添加文件：路径：{}，id:{}", file.getAbsolutePath(), analyzeResult[0]);
             uploadMap.put(id, file);
         }
     }
@@ -210,7 +210,9 @@ public class FileService {
      * @return 返回文件资源
      */
     public Resource download(String id) {
+        increaseDownloadNum(id);
         File file = uploadMap.get(id);
+        log.info("下载文件：{}", file.getAbsolutePath());
         return new PathResource(file.toPath());
 
     }
@@ -229,16 +231,31 @@ public class FileService {
 
     /**
      * 增加一次下载次数，由于下载次数等信息是通过文件名存储的，所以事实上是修改文件名为新的文件名
-     * @param file 文件名
+     * @param id 文件id
      * @return 新的文件名
      */
-    private String increaseDownloadNum(String file){
-        String[] analyse = analyzeFileName(file);
+    private String increaseDownloadNum(String id){
+        File file = uploadMap.get(id);
+        if (file == null){
+            log.error("增加下载次数失败，id在上传索引中为空：id: {}", id);
+            throw new RuntimeException("id不存在");
+        }
+        String fileName = file.getName();
+        String[] analyse = analyzeFileName(fileName);
         if (analyse == null){
-            throw new RuntimeException("文件名不正确: "+file);
+            throw new RuntimeException("文件名不正确: "+fileName);
         }
         int newNum = Integer.parseInt(analyse[2]) + 1;
-        return analyse[0]+"-"+newNum+"-"+analyse[3];
+        String newName = analyse[0] + "-" + newNum + "-" + analyse[3];
+
+        File renameFile = new File(file.getParent() + File.separator + newName);
+        if (!file.renameTo(renameFile)) {
+            log.error("增加下载次数失败：文件重命名失败");
+            throw new RuntimeException("文件重命名失败");
+        }
+        // 更新索引容器
+        uploadMap.put(analyse[0], renameFile);
+        return newName;
     }
 
     public String readName(String fileName){
@@ -312,8 +329,13 @@ public class FileService {
     }
 
     public static void main(String[] args) {
-        for (int i = 0; i < 100; i++) {
-            System.out.println(String.format("%3d", (int) (Math.random() * 1000)).replace(" ", "0"));
+        File file = new File("D:/bb.txt");
+        if (file.renameTo(new File(file.getParent()+File.separator+"cc.txt"))) {
+            System.out.println("重命名成功");
+            System.out.println(file.getAbsolutePath());
+            file.getFreeSpace();
+        }else {
+            System.out.println("重命名失败");
         }
 
     }
