@@ -6,6 +6,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -108,8 +109,6 @@ public class FileControl {
         String[] infos = service.upload(file).getBody();
 
         ModelAndView view = new ModelAndView("redirect:upload/detail/"+infos[0]);
-//        view.addObject("isJustNow", true);
-//        view.addObject("info", infos);
         model.addFlashAttribute("isJustNow", true);
         model.addFlashAttribute("info", infos);
         return view;
@@ -132,14 +131,27 @@ public class FileControl {
 
     /**
      * 文件上传后的文件详情页面、
-     * TODO 若id不存在的情况，应返回“不存在”的提示页面，而不是返回500错误
      * @param id 文件对应的id
      */
     @GetMapping(value = "/upload/detail/{id}")
-    public ModelAndView uploadDetail(@ModelAttribute("isJustNow") Boolean isJustNow ,@ModelAttribute("info") String[] infos, @PathVariable("id") String id){
-        System.out.println("文件详情页id："+id);
-        ModelAndView view = new ModelAndView("upload/detail");
-        return view;
+    public ModelAndView uploadDetail(@PathVariable("id") String id,
+                                     Model model){
+        log.info("文件详情页:{}", id);
+        Object isJustNow = model.getAttribute("isJustNow");
+        Object infos = model.getAttribute("info");
+        // 条件通过则表示不是跳转来的请求，需要主动获取文件详情
+        if (isJustNow == null || infos == null){
+            infos = service.analyzeId(id);
+            // 解析id后文件信息为空，返回文件不存在页面
+            if (infos == null){
+                return new ModelAndView("upload/error/none");
+            }
+            isJustNow = false;
+        }
+        ModelAndView modelAndView = new ModelAndView("upload/detail");
+        modelAndView.addObject("isJustNow", isJustNow);
+        modelAndView.addObject("info", infos);
+        return modelAndView;
     }
 
     /**

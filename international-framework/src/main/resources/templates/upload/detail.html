@@ -3,17 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <title>文件详情</title>
+    <style>
+        body{text-align: center}
+    </style>
 </head>
 <body>
 <!--需要展示的信息：文件名，文件大小，下载链接，上传时间，下载次数-->
-<a href="/upload"> 主页 </a>
-<div th:if="${isJustNow}">
-    <p>上传成功</p>
+<div>
+    <a href="/upload"> 主页 </a>
+    <div th:if="${isJustNow}">
+        <p>上传成功</p>
+    </div>
+    <p th:text="${'文件名：'+info[3]}"></p>
+    <p th:text="${'id：'+info[0]}"></p>
+    <p th:text="${'上传时间：'+ info[1]}"></p>
+    <p th:text="${'下载次数：'+info[2]}"></p>
+    <a th:href="@{'/upload/get/'+${info[0]}}">下载链接</a>
 </div>
-<p th:text="${'文件名：'+info[3]}"></p>
-<p th:text="${'id：'+info[0]}"></p>
-<p th:text="${'上传时间：'+ info[1]}"></p>
-<p th:text="${'下载次数：'+info[2]}"></p>
-<a th:href="@{'/upload/get/'+${info[0]}}">下载链接</a>
 </body>
 </html>

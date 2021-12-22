@@ -12,6 +12,7 @@ import top.hyizhou.framework.entity.Resp;
 import top.hyizhou.framework.entity.SimpleFileInfo;
 import top.hyizhou.framework.utils.StrUtil;
 
+import javax.annotation.PostConstruct;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -41,6 +42,26 @@ public class FileService {
 
     public FileService(){
         uploadMap = new HashMap<>();
+    }
+
+    @PostConstruct
+    @SuppressWarnings("ConstantConditions")
+    private void loadUploadInfo(){
+        File uploadDir = new File(uploadPath);
+        // 判断是存在 || 存在却不是目录 || 或前面条件都满足但目录为空
+        if (!uploadDir.exists() || !uploadDir.isDirectory() || uploadDir.listFiles().length == 0) {
+            return;
+        }
+        File[] files = uploadDir.listFiles();
+        for (File file : files) {
+            String[] analyzeResult = analyzeFileName(file.getName());
+            if (analyzeResult == null) {
+                continue;
+            }
+            String id = analyzeResult[0];
+            log.info("上传容器添加文件：{}", file.getAbsolutePath());
+            uploadMap.put(id, file);
+        }
     }
 
     /**
@@ -206,6 +227,11 @@ public class FileService {
         return id+join+"0"+join+file;
     }
 
+    /**
+     * 增加一次下载次数，由于下载次数等信息是通过文件名存储的，所以事实上是修改文件名为新的文件名
+     * @param file 文件名
+     * @return 新的文件名
+     */
     private String increaseDownloadNum(String file){
         String[] analyse = analyzeFileName(file);
         if (analyse == null){
@@ -260,6 +286,29 @@ public class FileService {
         // 取十三位时间戳
         String saveTime = id.substring(0, 13);
         return new String[]{id, saveTime, downNum, fileRealName};
+    }
+
+    /**
+     * 通过id得到文件信息
+     * @param id id值
+     * @return 文件信息，结构为[id,]
+     */
+    public String[] analyzeId(String id){
+        // 若id不存在
+        File file = uploadMap.get(id);
+        if (file == null){
+            log.error("解析id为空：{}", id);
+            return null;
+        }
+        String fileName = file.getName();
+        String[] analyze = analyzeFileName(fileName);
+        // 若文件名解析错误
+        if (analyze == null){
+            log.error("uploadMap中获取的文件名解析错误: {}", fileName);
+            return null;
+        }
+        return analyze;
+
     }
 
     public static void main(String[] args) {
