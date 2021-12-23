@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import top.hyizhou.framework.entity.SimpleFileInfo;
 import top.hyizhou.framework.service.FileService;
 import top.hyizhou.framework.utils.UrlUtil;
 
@@ -50,11 +51,13 @@ public class FileControl {
     private void doDown(HttpServletResponse response, String dirId, String path) throws IOException {
         try(OutputStream out = response.getOutputStream()) {
             // 输入流写入文件
-            String fileName = service.writeStream(out, dirId, path);
-            log.info("下载文件：{}",fileName);
+            SimpleFileInfo fileInfo = service.writeStream(out, dirId, path);
+            log.info("下载文件：{}",fileInfo.getName());
             response.setCharacterEncoding("utf-8");
             response.setContentType("application/octet-stream; charset=utf-8");
-            response.setHeader("Content-Disposition","attachment;filename="+fileName);
+            response.setHeader("Content-Disposition","attachment;filename="+fileInfo.getName());
+            response.setContentLengthLong(fileInfo.getLength());
+            log.info("下载完成文件:{}", fileInfo.getName());
         }
     }
 
@@ -120,7 +123,7 @@ public class FileControl {
      * @return 文件资源
      */
     @GetMapping(value = "/upload/get/{id:.*}")
-    public ResponseEntity<Resource> download(@PathVariable String id){
+    public ResponseEntity<Resource> get(@PathVariable String id){
         Resource resource = service.download(id);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))

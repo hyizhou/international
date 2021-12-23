@@ -70,7 +70,7 @@ public class FileService {
      * @param out 输出流
      * @return 文件名
      */
-    public String writeStream(OutputStream out, String dirId, String path) throws IOException {
+    public SimpleFileInfo writeStream(OutputStream out, String dirId, String path) throws IOException {
         if (!StringUtils.hasLength(path)) {
             throw new IOException("下载路径为空");
         }
@@ -90,7 +90,11 @@ public class FileService {
             throw new FileNotFoundException("文件读取失败，可能是没有权限，或者查看上面日志");
         }
         log.info("下载文件写入输出流完毕");
-        return file.getName();
+        SimpleFileInfo fileInfo = new SimpleFileInfo();
+        fileInfo.setName(file.getName());
+        fileInfo.setLength(file.length());
+        fileInfo.setDirectory(false);
+        return fileInfo;
     }
 
 
