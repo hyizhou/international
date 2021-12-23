@@ -24,7 +24,7 @@ public @interface AccessLimit {
     int maxCount();
 
     /**
-     * 是否需要登录请求才会生效。默认是false
+     * 是在登录后请求也会被限制。默认是false，不做限制
      */
-    boolean needLogin() default false;
+    boolean asBeforeLogin() default false;
 }

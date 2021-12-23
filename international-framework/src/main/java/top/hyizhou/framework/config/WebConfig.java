@@ -4,6 +4,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import top.hyizhou.framework.control.interceptor.AccessLimitInterceptor;
+import top.hyizhou.framework.control.interceptor.LogInterceptor;
+import top.hyizhou.framework.control.interceptor.VerifyInterceptor;
 
 /**
  * springMVC配置
@@ -14,8 +16,11 @@ import top.hyizhou.framework.control.interceptor.AccessLimitInterceptor;
 public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        // 记录请求日志拦截器
+        registry.addInterceptor(new LogInterceptor()).addPathPatterns("/**");
         // 过量请求拦截器
         registry.addInterceptor(new AccessLimitInterceptor());
-        WebMvcConfigurer.super.addInterceptors(registry);
+        // 验证登录拦截器
+        registry.addInterceptor(new VerifyInterceptor());
     }
 }
