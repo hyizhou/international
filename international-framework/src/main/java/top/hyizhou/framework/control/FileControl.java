@@ -27,7 +27,7 @@ import java.net.URLEncoder;
 /**
  * 文件下载与目录展示接口
  * bug: url中存在[]方括号这种情况会tomcat会404，请求都不会到springmvc里面
- * @author huanggc
+ * @author hyizhou
  * @date 2021/11/8 15:26
  */
 @RestController

@@ -2,7 +2,7 @@ package top.hyizhou.framework.entity;
 
 /**
  * 基础响应报文
- * @author huanggc
+ * @author hyizhou
  * @date 2021/12/7 9:58
  */
 public class Resp<E> {

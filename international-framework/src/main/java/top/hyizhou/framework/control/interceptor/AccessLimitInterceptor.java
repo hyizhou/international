@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * 自定义拦截器，控制请求密度
- * @author huanggc
+ * @author hyizhou
  * @date 2021/11/25 10:58
  */
 public class AccessLimitInterceptor implements HandlerInterceptor {

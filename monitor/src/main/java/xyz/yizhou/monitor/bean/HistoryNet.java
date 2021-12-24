@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  * 网速历史记录
- * @author huanggc
+ * @author hyizhou
  * @date 2021/10/18 17:33
  */
 public class HistoryNet implements History<SnapshotNet>{

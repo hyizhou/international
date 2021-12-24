@@ -9,7 +9,7 @@ import java.util.Arrays;
  * URL工具类</br>
  * 标准的URL由三部分组成：协议类型+主机名+路径及文件名，使用本工具类请不要带协议：如http：//localhost/a/ 只需要输入localhost/a/
  *
- * @author huanggc
+ * @author hyizhou
  * @date 2021/12/14 15:33
  */
 public class UrlUtil {

@@ -4,7 +4,7 @@ import java.util.regex.Pattern;
 
 /**
  * 字符串工具类
- * @author huanggc
+ * @author hyizhou
  * @date 2021/12/14 16:56
  */
 public class StrUtil {

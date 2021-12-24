@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * 流工具类
  *
- * @author huanggc
+ * @author hyizhou
  * @date 2021/8/5 10:12
  */
 public class StreamUtil {

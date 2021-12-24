@@ -2,7 +2,7 @@ package top.hyizhou.framework.utils;
 
 /**
  * 转换类型相关
- * @author huanggc
+ * @author hyizhou
  * @date 2021/7/29 16:45
  */
 public class CastUtil {

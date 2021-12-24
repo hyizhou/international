@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * 记录历史信息的接口
  *
- * @author huanggc
+ * @author hyizhou
  * @date 2021/10/13 10:29
  */
 public interface History<T> {

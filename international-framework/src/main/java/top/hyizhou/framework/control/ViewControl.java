@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 /**
  * 简单视图的控制器
- * @author huanggc
+ * @author hyizhou
  * @date 2021/12/7 16:13
  */
 @Controller

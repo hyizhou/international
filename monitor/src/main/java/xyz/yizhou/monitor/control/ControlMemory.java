@@ -10,7 +10,7 @@ import xyz.yizhou.monitor.bean.HistoryMemory;
 /**
  * 内存信息提供的接口
  *
- * @author huanggc
+ * @author hyizhou
  * @date 2021/10/15 15:45
  */
 @RestController

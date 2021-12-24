@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * 前端页面所在项目
- * @author huanggc
+ * @author hyizhou
  */
 @SpringBootApplication
 public class WebappApplication {

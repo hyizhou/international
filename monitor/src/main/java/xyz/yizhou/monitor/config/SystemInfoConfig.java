@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * 将系统信息相关对象放入spring容器
  *
- * @author huanggc
+ * @author hyizhou
  * @date 2021/10/12 15:37
  */
 @Configuration

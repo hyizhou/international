@@ -9,7 +9,7 @@ import java.nio.charset.Charset;
 
 /**
  * 文件工具类
- * @author huanggc
+ * @author hyizhou
  * @date 2021/9/2 10:39
  */
 public class FileUtil {

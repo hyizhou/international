@@ -2,7 +2,7 @@ package top.hyizhou.framework.entity;
 
 /**
  * 简单文件信息
- * @author huanggc
+ * @author hyizhou
  * @date 2021/12/7 11:48
  */
 public class SimpleFileInfo {

@@ -4,7 +4,7 @@ import oshi.hardware.HWDiskStore;
 
 /**
  * 硬盘信息快照
- * @author huanggc
+ * @author hyizhou
  * @date 2021/10/13 16:25
  */
 public class SnapshotDisk {

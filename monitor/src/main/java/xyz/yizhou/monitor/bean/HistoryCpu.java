@@ -6,7 +6,7 @@ import xyz.yizhou.monitor.util.FixedQuery;
 import java.util.List;
 
 /**
- * @author huanggc
+ * @author hyizhou
  * @date 2021/10/13 11:48
  */
 public class HistoryCpu implements History<SnapshotCpu>{

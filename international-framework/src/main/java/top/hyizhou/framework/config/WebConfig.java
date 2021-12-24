@@ -9,7 +9,7 @@ import top.hyizhou.framework.control.interceptor.VerifyInterceptor;
 
 /**
  * springMVC配置
- * @author huanggc
+ * @author hyizhou
  * @date 2021/11/9 11:32
  */
 @Configuration

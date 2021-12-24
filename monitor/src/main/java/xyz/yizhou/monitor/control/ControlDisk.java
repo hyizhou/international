@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * 提供硬盘信息的接口
  *
- * @author huanggc
+ * @author hyizhou
  * @date 2021/10/15 16:05
  */
 @RestController

@@ -7,7 +7,7 @@ import java.util.Arrays;
 /**
  * cpu使用率快照 </br>
  *
- * @author huanggc
+ * @author hyizhou
  * @date 2021/10/13 10:34
  */
 public class SnapshotCpu {

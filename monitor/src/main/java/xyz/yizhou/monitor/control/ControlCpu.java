@@ -11,7 +11,7 @@ import xyz.yizhou.monitor.bean.HistoryCpu;
 /**
  * 提供cpu信息的接口
  *
- * @author huanggc
+ * @author hyizhou
  * @date 2021/10/15 15:56
  */
 @RestController

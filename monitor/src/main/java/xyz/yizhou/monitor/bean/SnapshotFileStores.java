@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * 一个文件分区的快照
  *
- * @author huanggc
+ * @author hyizhou
  * @date 2021/10/14 15:29
  */
 public class SnapshotFileStores implements Iterable<OSFileStore> {

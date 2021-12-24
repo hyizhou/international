@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * 校验登录的拦截器
- * @author huanggc
+ * @author hyizhou
  * @date 2021/12/23 10:49
  */
 public class VerifyInterceptor implements HandlerInterceptor {

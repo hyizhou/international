@@ -7,7 +7,7 @@ import java.util.Queue;
 /**
  * 先进先出队列，若超过给定容量，则会将最早对象（队头）删除再插入（队尾）
  *
- * @author huanggc
+ * @author hyizhou
  * @date 2021/10/12 16:25
  */
 public class FixedQuery<T> {

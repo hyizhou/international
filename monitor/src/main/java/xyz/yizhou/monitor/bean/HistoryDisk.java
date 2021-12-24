@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * 硬盘历史使用情况记录
  *
- * @author huanggc
+ * @author hyizhou
  * @date 2021/10/14 11:13
  */
 public class HistoryDisk implements History<List<SnapshotDisk>>{

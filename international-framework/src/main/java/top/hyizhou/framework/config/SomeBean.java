@@ -3,10 +3,11 @@ package top.hyizhou.framework.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.AntPathMatcher;
+import top.hyizhou.framework.porxy.UserMapping;
 
 /**
  * 产生一些Bean
- * @author huanggc
+ * @author hyizhou
  * @date 2021/11/9 15:29
  */
 @Configuration
@@ -17,5 +18,10 @@ public class SomeBean {
     @Bean
     public AntPathMatcher antPathMatcher(){
         return new AntPathMatcher();
+    }
+
+    @Bean
+    public UserMapping userMapping(){
+        return new UserMapping();
     }
 }

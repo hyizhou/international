@@ -8,7 +8,7 @@ import xyz.yizhou.monitor.bean.*;
 /**
  * 记录历史信息定时任务
  *
- * @author huanggc
+ * @author hyizhou
  * @date 2021/10/13 10:15
  */
 @Component

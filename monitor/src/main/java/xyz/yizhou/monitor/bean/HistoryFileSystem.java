@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * 文件系统历史，记录磁盘各个分区的历史信息
  *
- * @author huanggc
+ * @author hyizhou
  * @date 2021/10/14 15:39
  */
 public class HistoryFileSystem implements History<SnapshotFileStores>{

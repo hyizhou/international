@@ -9,7 +9,7 @@ import oshi.software.os.OperatingSystem;
 
 /**
  * 操作系统信息接口
- * @author huanggc
+ * @author hyizhou
  * @date 2021/10/19 11:44
  */
 @RestController

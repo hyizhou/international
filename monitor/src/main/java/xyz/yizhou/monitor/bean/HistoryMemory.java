@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * 历史内存对象信息
  *
- * @author huanggc
+ * @author hyizhou
  * @date 2021/10/12 17:16
  */
 public class HistoryMemory implements History<GlobalMemory> {

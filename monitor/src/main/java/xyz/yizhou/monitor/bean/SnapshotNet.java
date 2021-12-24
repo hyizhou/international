@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * 网络快照，记录当前网速
- * @author huanggc
+ * @author hyizhou
  * @date 2021/10/18 17:25
  */
 public class SnapshotNet {

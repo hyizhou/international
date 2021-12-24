@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * 登录功能控制器
- * @author huanggc
+ * @author hyizhou
  * @date 2021/12/23 9:57
  */
 @RequestMapping()

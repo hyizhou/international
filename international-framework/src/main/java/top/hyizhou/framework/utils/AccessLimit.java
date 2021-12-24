@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * 自定义注解，用于拦截过量请求
- * @author huanggc
+ * @author hyizhou
  * @date 2021/11/25 10:29
  */
 @Retention(RetentionPolicy.RUNTIME)

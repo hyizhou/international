@@ -9,7 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
- * @author huanggc
+ * @author hyizhou
  * @date 2021/11/3 16:52
  */
 public class CreateGHKDemo extends JFrame implements ActionListener {

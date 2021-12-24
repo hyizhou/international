@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * 记录请求相关日志信息的拦截器
- * @author huanggc
+ * @author hyizhou
  * @date 2021/12/23 14:48
  */
 public class LogInterceptor implements HandlerInterceptor {

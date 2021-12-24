@@ -4,7 +4,7 @@ import java.lang.reflect.Array;
 
 /**
  * 数组工具类，作为官方 {@link java.util.Arrays} 补充
- * @author huanggc
+ * @author hyizhou
  * @date 2021/12/14 16:10
  */
 public class ArrayUtil {
