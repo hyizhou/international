@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 文件处理业务Service
@@ -39,6 +40,7 @@ public class FileService {
     private String uploadPath;
     /** 上传目录文件id对应关系，TODO 应在初始化时加载目录中文件 */
     private final Map<String, File> uploadMap;
+    private final int sleepTime = 0;
 
     public FileService(){
         uploadMap = new HashMap<>();
@@ -71,6 +73,7 @@ public class FileService {
      * @return 文件名
      */
     public SimpleFileInfo writeStream(OutputStream out, String dirId, String path) throws IOException {
+        log.info("-------下载任务-------");
         if (!StringUtils.hasLength(path)) {
             throw new IOException("下载路径为空");
         }
@@ -84,10 +87,18 @@ public class FileService {
             byte[] b = new byte[1024];
             while ((len = fileStream.read(b)) > 0) {
                 out.write(b, 0, len);
+                out.flush();
+                // 用于调节下载速度，计算：1k*1000/sleepTime
+                TimeUnit.MILLISECONDS.sleep(sleepTime);
             }
         } catch (FileNotFoundException e) {
             log.error("文件读取失败，错误详情：", e);
             throw new FileNotFoundException("文件读取失败，可能是没有权限，或者查看上面日志");
+        } catch (InterruptedException e){
+            log.error("下载线程被外部中断");
+            Thread.currentThread().interrupt();
+        }finally {
+            out.close();
         }
         log.info("下载文件写入输出流完毕");
         SimpleFileInfo fileInfo = new SimpleFileInfo();
@@ -103,7 +114,7 @@ public class FileService {
      *
      * @return 真实地址
      */
-    private File absoluteFile(String dirId, String path) throws IOException {
+    public File absoluteFile(String dirId, String path) throws IOException {
         String dirPath = dirMap.get(dirId);
         if (dirPath == null) {
             log.error("目录id不存在 - dirId:{}; path:{}", dirId, path);

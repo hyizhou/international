@@ -18,9 +18,11 @@ import top.hyizhou.framework.utils.UrlUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 
 /**
  * 文件下载与目录展示接口
@@ -49,14 +51,19 @@ public class FileControl {
      * 对文件下载任务进行处理
      */
     private void doDown(HttpServletResponse response, String dirId, String path) throws IOException {
+        System.out.println("进入下载功能方法");
         try(OutputStream out = response.getOutputStream()) {
-            // 输入流写入文件
-            SimpleFileInfo fileInfo = service.writeStream(out, dirId, path);
-            log.info("下载文件：{}",fileInfo.getName());
+            File file = service.absoluteFile(dirId, path);
+            log.info("下载文件：{}",file.getName());
             response.setCharacterEncoding("utf-8");
             response.setContentType("application/octet-stream; charset=utf-8");
-            response.setHeader("Content-Disposition","attachment;filename="+fileInfo.getName());
-            response.setContentLengthLong(fileInfo.getLength());
+            // 浏览器正确解码中文，postman显示编码后字符
+            response.setHeader("Content-Disposition","attachment;filename="+ URLEncoder.encode(file.getName(), "utf-8"));
+            System.out.println("文件大小："+file.length());
+            response.setContentLengthLong(file.length());
+            // 输入流写入文件
+            SimpleFileInfo fileInfo = service.writeStream(out, dirId, path);
+
             log.info("下载完成文件:{}", fileInfo.getName());
         }
     }
