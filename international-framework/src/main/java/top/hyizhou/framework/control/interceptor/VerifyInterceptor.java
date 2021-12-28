@@ -28,6 +28,11 @@ public class VerifyInterceptor implements HandlerInterceptor {
             for (Cookie cookie : cookies) {
                 if (cookie.getName().equals(CookieConstant.SIGN_IN)) {
                     passed = judge(cookie.getValue());
+                    // 对cookie生命时间进行刷新
+                    cookie.setMaxAge(CookieConstant.SIGN_MAX_AGE);
+                    // 不指定的话，每一级路径都会产生同名cookie
+                    cookie.setPath("/");
+                    response.addCookie(cookie);
                 }
             }
         }
@@ -36,6 +41,7 @@ public class VerifyInterceptor implements HandlerInterceptor {
             response.sendRedirect("/login");
             return false;
         }
+
         return true;
     }
 
