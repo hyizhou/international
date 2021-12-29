@@ -22,6 +22,6 @@ public class WebConfig implements WebMvcConfigurer {
         // 过量请求拦截器
         registry.addInterceptor(new AccessLimitInterceptor());
         // 验证登录拦截器
-        registry.addInterceptor(new VerifyInterceptor()).excludePathPatterns("/login");
+        registry.addInterceptor(new VerifyInterceptor()).excludePathPatterns("/login", "/register", "/error**");
     }
 }

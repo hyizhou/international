@@ -1,6 +1,6 @@
 package top.hyizhou.framework.mapping;
 
-import top.hyizhou.framework.entity.UserInfoBean;
+import top.hyizhou.framework.entity.UserInfo;
 
 /**
  * 用户信息数据库操作
@@ -10,10 +10,10 @@ import top.hyizhou.framework.entity.UserInfoBean;
 public interface UserMapping {
 
     /** 通过用户名查询用户 */
-    UserInfoBean select(String userName);
+    UserInfo select(String userName);
 
     /** 添加新用户 */
-    void insert(UserInfoBean bean);
+    void insert(UserInfo bean);
 
     /** 通过用户名删除用户 */
     boolean delete(String userName);

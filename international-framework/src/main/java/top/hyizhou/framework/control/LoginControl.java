@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import top.hyizhou.framework.config.constant.CookieConstant;
+import top.hyizhou.framework.entity.UserInfo;
 import top.hyizhou.framework.service.LoginService;
 
 import javax.servlet.http.Cookie;
@@ -54,11 +55,38 @@ public class LoginControl {
     }
 
     /**
+     * 注册接口
+     * TODO 接口参数改成bean比较好
+     * @return 成功则返回登录页面，并提示注册成功。失败则继续处于注册页面，并提示错误原因
+     */
+    @PostMapping(value = "/register")
+    public String register(@ModelAttribute("username") String username, @ModelAttribute("password") String password, Model model){
+        // TODO 判断info信息正确性
+        // 写入注册信息是否成功
+        UserInfo info = new UserInfo(username, password);
+        if (loginService.register(info)) {
+            log.info("注册成功：{}-{}", info.getUserName(), info.getPassword());
+            model.addAttribute("alert", "注册成功，请继续登录");
+            return "login/login";
+        }else {
+            log.info("注册失败：{}-{}",info.getUserName(), info.getPassword());
+            model.addAttribute("msg", "注册系统异常，请稍后再试");
+            return "login/register";
+        }
+    }
+
+    /**
      * 响应登录视图
      */
     @GetMapping("/login")
-    public String login() {
+    public String loginView() {
         log.info("响应登录视图");
         return "login/login";
+    }
+
+    @GetMapping("/register")
+    public String registerView(){
+        log.info("响应注册视图");
+        return "login/register";
     }
 }

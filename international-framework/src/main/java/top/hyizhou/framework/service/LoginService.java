@@ -2,7 +2,7 @@ package top.hyizhou.framework.service;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import top.hyizhou.framework.entity.UserInfoBean;
+import top.hyizhou.framework.entity.UserInfo;
 import top.hyizhou.framework.mapping.UserMapping;
 
 /**
@@ -26,10 +26,25 @@ public class LoginService {
      * @return 若是true则允许登录
      */
     public boolean allowLogin(String userName, String password){
-        UserInfoBean user = userMapping.select(userName);
+        UserInfo user = userMapping.select(userName);
         if (user == null){
             return false;
         }
         return user.getPassword().equals(password);
+    }
+
+    /**
+     * 注册用户
+     * @param info 用户信息
+     * @return 成功则true
+     */
+    public boolean register(UserInfo info){
+        try {
+            userMapping.insert(info);
+            return true;
+        }catch (Exception e){
+            return false;
+        }
+
     }
 }

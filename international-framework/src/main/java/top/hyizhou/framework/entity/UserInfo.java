@@ -6,11 +6,11 @@ package top.hyizhou.framework.entity;
  * @author hyizhou
  * @date 2021/12/24 17:40
  */
-public class UserInfoBean {
+public class UserInfo {
     private String userName;
     private String password;
 
-    public UserInfoBean(String userName, String password) {
+    public UserInfo(String userName, String password) {
         this.userName = userName;
         this.password = password;
     }
@@ -29,5 +29,13 @@ public class UserInfoBean {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    @Override
+    public String toString() {
+        return "UserInfo{" +
+                "userName='" + userName + '\'' +
+                ", password='" + password + '\'' +
+                '}';
     }
 }

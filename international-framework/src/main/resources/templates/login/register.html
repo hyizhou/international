@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>信息注册</title>
+    <script type="text/javascript">
+        function checkpassword(){
+            var pw = document.getElementById("pw").value;
+            var repw = document.getElementById("repw").value;
+            console.log("检查密码: pw="+pw+"  repw="+repw);
+            if (pw === repw){
+                document.getElementById("msg").innerHTML="<br><span style='color: red'>两次输入密码不一致</span>";
+                document.getElementById("submit").disabled=true;
+            }else {
+                document.getElementById("msg").innerHTML="<br><span style='color: green'>两次输入密码一致</span>";
+                document.getElementById("submit").disabled=false;
+            }
+        }
+    </script>
+</head>
+<body>
+<P th:text="${msg}" th:if="${msg} != null"></P>
+<form action="/register" method="post" >
+    用户名 <input name="username" type="text">
+    密码 <input name="password" type="password" id="pw" >
+    确认密码 <input name="again_password" type="password" id="repw" onclick="checkpassword()">
+    <span id="msg"></span>
+    <!--<input type="button" value="检查" onclick="checkpassword()">-->
+    <input type="submit" value="注册" id="submit" disabled="false">
+</form>
+
+<a href="/login">登录</a>
+
+
+</body>
+</html>

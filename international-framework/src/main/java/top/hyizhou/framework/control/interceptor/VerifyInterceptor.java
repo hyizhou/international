@@ -4,10 +4,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.HandlerInterceptor;
 import top.hyizhou.framework.config.constant.CookieConstant;
+import top.hyizhou.framework.utils.CookieUtil;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 /**
  * 校验登录的拦截器
@@ -21,27 +23,20 @@ public class VerifyInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         log.info("进入登录校验拦截器");
-        boolean passed = false;
+        boolean passed;
         // 通过cookie判断是否登录
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals(CookieConstant.SIGN_IN)) {
-                    passed = judge(cookie.getValue());
-                    // 对cookie生命时间进行刷新
-                    cookie.setMaxAge(CookieConstant.SIGN_MAX_AGE);
-                    // 不指定的话，每一级路径都会产生同名cookie
-                    cookie.setPath("/");
-                    response.addCookie(cookie);
-                }
-            }
-        }
+        Map<String, Cookie> cookieMap = CookieUtil.getCookieMap(request);
+        Cookie signInCookie = cookieMap.get(CookieConstant.SIGN_IN);
+        passed = signInCookie != null && judge(signInCookie.getValue());
         if (!passed){
             log.info("cookie值显示未登录哦");
             response.sendRedirect("/login");
             return false;
         }
-
+        // 刷新登录状态cookie存活时间
+        signInCookie.setMaxAge(CookieConstant.SIGN_MAX_AGE);
+        signInCookie.setPath("/");
+        response.addCookie(signInCookie);
         return true;
     }
 
