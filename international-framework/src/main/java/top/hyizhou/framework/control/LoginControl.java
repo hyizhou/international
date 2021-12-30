@@ -11,9 +11,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import top.hyizhou.framework.config.constant.CookieConstant;
 import top.hyizhou.framework.entity.UserInfo;
 import top.hyizhou.framework.service.LoginService;
+import top.hyizhou.framework.utils.CookieUtil;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 /**
  * 登录功能控制器
@@ -76,6 +79,23 @@ public class LoginControl {
     }
 
     /**
+     * 注销，原理是将页面cookie生命设置为0，导致其删除，后端部分并没有做什么事情，其实删除cookie事情前端js也能做
+     * @return 跳转到登录页
+     */
+    @GetMapping("/logout")
+    public String logout( HttpServletRequest req, HttpServletResponse resp){
+        Map<String, Cookie> cookieMap = CookieUtil.getCookieMap(req);
+        Cookie cookie = cookieMap.get(CookieConstant.SIGN_IN);
+        if (cookie != null){
+            log.info("{}用户进行注销操作",cookie.getValue());
+            cookie.setMaxAge(0);
+            cookie.setPath("/");
+            resp.addCookie(cookie);
+        }
+        return "redirect:/login";
+    }
+
+    /**
      * 响应登录视图
      */
     @GetMapping("/login")
@@ -84,6 +104,9 @@ public class LoginControl {
         return "login/login";
     }
 
+    /**
+     * 响应登录视图
+     */
     @GetMapping("/register")
     public String registerView(){
         log.info("响应注册视图");

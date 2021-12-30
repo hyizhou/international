@@ -23,20 +23,29 @@ public class VerifyInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         log.info("进入登录校验拦截器");
+        boolean isLogin =  "/login".equals(request.getRequestURI());
         boolean passed;
         // 通过cookie判断是否登录
         Map<String, Cookie> cookieMap = CookieUtil.getCookieMap(request);
         Cookie signInCookie = cookieMap.get(CookieConstant.SIGN_IN);
         passed = signInCookie != null && judge(signInCookie.getValue());
+        // 未登录状态
         if (!passed){
+            if (isLogin){
+                return true;
+            }
             log.info("cookie值显示未登录哦");
             response.sendRedirect("/login");
             return false;
         }
+        // 已登录状态
         // 刷新登录状态cookie存活时间
         signInCookie.setMaxAge(CookieConstant.SIGN_MAX_AGE);
         signInCookie.setPath("/");
         response.addCookie(signInCookie);
+        if (isLogin){
+            response.sendRedirect("/index");
+        }
         return true;
     }
 
