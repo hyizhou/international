@@ -60,7 +60,7 @@ public class LoginControl {
      * @return 成功则返回登录页面，并提示注册成功。失败则继续处于注册页面，并提示错误原因
      */
     @PostMapping(value = "/register")
-    public String register(@ModelAttribute("username") String username, @ModelAttribute("password") String password, Model model){
+    public String register(@ModelAttribute("userName") String username, @ModelAttribute("password") String password, Model model){
         // TODO 判断info信息正确性
         // 写入注册信息是否成功
         UserInfo info = new UserInfo(username, password);

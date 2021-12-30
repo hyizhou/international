@@ -3,12 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>信息注册</title>
+    <style>
+        body{text-align: center}
+    </style>
     <script type="text/javascript">
-        function checkpassword(){
-            var pw = document.getElementById("pw").value;
-            var repw = document.getElementById("repw").value;
+        function checkPassword(){
+            let pw = document.getElementById("pw").value;
+            let repw = document.getElementById("repw").value;
             console.log("检查密码: pw="+pw+"  repw="+repw);
-            if (pw === repw){
+            if (pw !== repw){
                 document.getElementById("msg").innerHTML="<br><span style='color: red'>两次输入密码不一致</span>";
                 document.getElementById("submit").disabled=true;
             }else {
@@ -21,15 +24,14 @@
 <body>
 <P th:text="${msg}" th:if="${msg} != null"></P>
 <form action="/register" method="post" >
-    用户名 <input name="username" type="text">
-    密码 <input name="password" type="password" id="pw" >
-    确认密码 <input name="again_password" type="password" id="repw" onclick="checkpassword()">
+    用户名 <input name="userName" type="text"> <br>
+    密码 <input name="password" type="password" id="pw" > <br>
+    确认密码 <input name="again_password" type="password" id="repw" onblur="checkPassword()"> <br>
     <span id="msg"></span>
-    <!--<input type="button" value="检查" onclick="checkpassword()">-->
-    <input type="submit" value="注册" id="submit" disabled="false">
+    <input type="submit" value="注册" id="submit" disabled> <br>
 </form>
 
-<a href="/login">登录</a>
+<a href="/login">登录页面</a>
 
 
 </body>
