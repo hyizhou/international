@@ -50,6 +50,7 @@ public class TestControl {
         user.setName("小明");
         user.setPassword("1234");
         user.setPhone("12306");
+        user.setAccountName("test"+Math.random());
         usersMapper.insertOne(user);
         user.setName("小原");
         System.out.println("更新条数："+usersMapper.update(user));

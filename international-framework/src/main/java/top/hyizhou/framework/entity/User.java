@@ -16,7 +16,7 @@ public class User {
     private Boolean isDelete;
     private String email;
     private String phone;
-    private String column1;
+    private String accountName;
     private String column2;
 
     public Integer getId() {
@@ -83,12 +83,12 @@ public class User {
         this.phone = phone;
     }
 
-    public String getColumn1() {
-        return column1;
+    public String getAccountName() {
+        return accountName;
     }
 
-    public void setColumn1(String column1) {
-        this.column1 = column1;
+    public void setAccountName(String accountName) {
+        this.accountName = accountName;
     }
 
     public String getColumn2() {
@@ -110,7 +110,7 @@ public class User {
                 ", isDelete=" + isDelete +
                 ", email='" + email + '\'' +
                 ", phone='" + phone + '\'' +
-                ", column1='" + column1 + '\'' +
+                ", column1='" + accountName + '\'' +
                 ", column2='" + column2 + '\'' +
                 '}';
     }

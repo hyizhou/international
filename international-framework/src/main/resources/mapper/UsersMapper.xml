@@ -10,7 +10,7 @@
         <result column="is_delete" jdbcType="BOOLEAN" property="isDelete"/>
         <result column="email" jdbcType="VARCHAR" property="email"/>
         <result column="phone" jdbcType="VARCHAR" property="phone"/>
-        <result column="Column1" jdbcType="VARCHAR" property="column1"/>
+        <result column="account_name" jdbcType="VARCHAR" property="accountName"/>
         <result column="Column2" jdbcType="VARCHAR" property="column2"/>
     </resultMap>
 
@@ -36,11 +36,11 @@
                 <if test="phone != null">
                   `phone`,
                 </if>
-                <if test="column1 != null">
-                  `Column1`,
+                <if test="accountName != null">
+                  `account_name`,
                 </if>
                 <if test="column2 != null">
-                  `Column2`,
+                  `Column2`
                 </if>
             </trim>
         values
@@ -63,8 +63,8 @@
                 <if test="phone != null">
                     #{phone},
                 </if>
-                <if test="column1 != null">
-                    #{column1},
+                <if test="accountName != null">
+                    #{accountName},
                 </if>
                 <if test="column2 != null">
                     #{column2}
@@ -76,7 +76,8 @@
     <select id="findById" resultMap="usersMap">
         select * from users where id = #{id}
     </select>
-    
+
+
     <insert id="insertOne" useGeneratedKeys="true" keyProperty="id">
         <include refid="insert_sql"/>
     </insert>
@@ -109,8 +110,8 @@
             <if test="phone != null">
                 `phone` = #{phone},
             </if>
-            <if test="column1 != null">
-                `Column1` = #{column1},
+            <if test="accountName != null">
+                `account_name` = #{accountName},
             </if>
             <if test="column2 != null">
                 `Column2` = #{column2}
@@ -120,4 +121,8 @@
             `id`=#{id}
         </where>
     </update>
+
+    <select id="countAccountName" resultType="java.lang.Integer">
+        select count(*) from users where `account_name`=#{accountName}
+    </select>
 </mapper>

@@ -32,5 +32,17 @@ public interface UsersMapper {
      */
     int deleteById(@Param("id") Integer id);
 
+    /**
+     * 更新数据
+     * @param user 实体对象，需要id有值
+     * @return 返回更新成功的条数，成功则为1
+     */
     int update(User user);
+
+    /**
+     * 计算账户名出现次数，由于这个字段是唯一的，所有只会是0或者1
+     * @param accountName 账户名
+     * @return 1或者0
+     */
+    int countAccountName(String accountName);
 }
