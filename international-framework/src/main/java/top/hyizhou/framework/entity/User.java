@@ -7,7 +7,7 @@ import java.util.Date;
  * @author hyizhou
  * @date 2021/12/31 11:08
  */
-public class Users {
+public class User {
     private Integer id;
     private String name;
     private String password;

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import top.hyizhou.framework.entity.User;
 import top.hyizhou.framework.mapper.UsersMapper;
 
 import javax.servlet.ServletContext;
@@ -45,7 +46,13 @@ public class TestControl {
     @RequestMapping("/test/mybatis")
     @ResponseBody
     public String testMyBaits(){
-        System.out.println(usersMapper.selectById(1));
+        User user = new User();
+        user.setName("小明");
+        user.setPassword("1234");
+        user.setPhone("12306");
+        usersMapper.insertOne(user);
+        user.setName("小原");
+        System.out.println("更新条数："+usersMapper.update(user));
         return "ok";
     }
 

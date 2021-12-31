@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="top.hyizhou.framework.mapper.UsersMapper">
-    <resultMap id="usersMap" type="top.hyizhou.framework.entity.Users">
+    <resultMap id="usersMap" type="top.hyizhou.framework.entity.User">
         <result column="id" jdbcType="INTEGER" property="id"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="is_admin" jdbcType="BOOLEAN" property="isAdmin"/>
         <result column="is_delete" jdbcType="BOOLEAN" property="isDelete"/>
         <result column="email" jdbcType="VARCHAR" property="email"/>
@@ -12,8 +13,111 @@
         <result column="Column1" jdbcType="VARCHAR" property="column1"/>
         <result column="Column2" jdbcType="VARCHAR" property="column2"/>
     </resultMap>
-    
-    <select id="selectById" resultType="top.hyizhou.framework.entity.Users">
+
+    <!--插入语句前面部分，不包括id和create_time字段-->
+    <sql id="insert_sql">
+        insert into users
+            <trim prefix="(" suffixOverrides="," suffix=")">
+                <if test="name != null">
+                    `name`,
+                </if>
+                <if test="password != null">
+                  `password`,
+                </if>
+                <if test="isAdmin != null">
+                  `is_admin`,
+                </if>
+                <if test="isDelete != null">
+                  `is_delete`,
+                </if>
+                <if test="email != null">
+                  `email`,
+                </if>
+                <if test="phone != null">
+                  `phone`,
+                </if>
+                <if test="column1 != null">
+                  `Column1`,
+                </if>
+                <if test="column2 != null">
+                  `Column2`,
+                </if>
+            </trim>
+        values
+            <trim suffix=")" prefix="(" suffixOverrides=",">
+                <if test="name != null">
+                    #{name},
+                </if>
+                <if test="password != null">
+                    #{password},
+                </if>
+                <if test="isAdmin != null">
+                    #{isAdmin},
+                </if>
+                <if test="isDelete != null">
+                    #{isDelete},
+                </if>
+                <if test="email != null">
+                    #{email},
+                </if>
+                <if test="phone != null">
+                    #{phone},
+                </if>
+                <if test="column1 != null">
+                    #{column1},
+                </if>
+                <if test="column2 != null">
+                    #{column2}
+                </if>
+            </trim>
+    </sql>
+
+
+    <select id="findById" resultMap="usersMap">
         select * from users where id = #{id}
     </select>
+    
+    <insert id="insertOne" useGeneratedKeys="true" keyProperty="id">
+        <include refid="insert_sql"/>
+    </insert>
+
+    <delete id="deleteById">
+        delete from users where `id`=#{id}
+    </delete>
+
+    <update id="update">
+        update users
+        <set>
+            <if test="name != null">
+                `name` = #{name},
+            </if>
+            <if test="password != null">
+                `password` = #{password},
+            </if>
+            <if test="createTime != null">
+                `create_time` = #{createTime},
+            </if>
+            <if test="isAdmin != null">
+                `is_admin` = #{isAdmin},
+            </if>
+            <if test="isDelete != null">
+                `is_delete` = #{isDelete},
+            </if>
+            <if test="email != null">
+                `email` = #{email},
+            </if>
+            <if test="phone != null">
+                `phone` = #{phone},
+            </if>
+            <if test="column1 != null">
+                `Column1` = #{column1},
+            </if>
+            <if test="column2 != null">
+                `Column2` = #{column2}
+            </if>
+        </set>
+        <where>
+            `id`=#{id}
+        </where>
+    </update>
 </mapper>
