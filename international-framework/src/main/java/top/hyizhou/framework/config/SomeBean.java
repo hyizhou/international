@@ -3,7 +3,7 @@ package top.hyizhou.framework.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.AntPathMatcher;
-import top.hyizhou.framework.mapping.UserMapping;
+import top.hyizhou.framework.mapper.UserMapping;
 import top.hyizhou.framework.proxy.UserMappingProxy;
 
 /**

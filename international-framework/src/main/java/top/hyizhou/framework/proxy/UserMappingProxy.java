@@ -1,7 +1,7 @@
 package top.hyizhou.framework.proxy;
 
 import top.hyizhou.framework.entity.UserInfo;
-import top.hyizhou.framework.mapping.UserMapping;
+import top.hyizhou.framework.mapper.UserMapping;
 
 import java.util.ArrayList;
 import java.util.List;

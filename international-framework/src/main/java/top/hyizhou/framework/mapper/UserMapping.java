@@ -1,4 +1,4 @@
-package top.hyizhou.framework.mapping;
+package top.hyizhou.framework.mapper;
 
 import top.hyizhou.framework.entity.UserInfo;
 

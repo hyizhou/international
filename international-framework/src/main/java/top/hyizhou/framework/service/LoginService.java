@@ -3,7 +3,7 @@ package top.hyizhou.framework.service;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import top.hyizhou.framework.entity.UserInfo;
-import top.hyizhou.framework.mapping.UserMapping;
+import top.hyizhou.framework.mapper.UserMapping;
 
 /**
  * 处理登录验证相关信息

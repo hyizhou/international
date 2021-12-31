@@ -2,6 +2,7 @@ package top.hyizhou.framework.control;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import top.hyizhou.framework.mapper.UsersMapper;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +23,8 @@ import java.io.*;
  */
 @Controller
 public class TestControl {
+    @Autowired
+    private UsersMapper usersMapper;
     private final Logger logger = LoggerFactory.getLogger(TestControl.class);
     @RequestMapping("/test/1")
     public String test1(RedirectAttributes attributes){
@@ -35,6 +39,13 @@ public class TestControl {
     public String test2(@ModelAttribute("aa") String aa){
         System.out.println("到达test2");
         System.out.println("输出aa："+ aa);
+        return "ok";
+    }
+
+    @RequestMapping("/test/mybatis")
+    @ResponseBody
+    public String testMyBaits(){
+        System.out.println(usersMapper.selectById(1));
         return "ok";
     }
 
