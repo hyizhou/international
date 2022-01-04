@@ -125,4 +125,8 @@
     <select id="countAccountName" resultType="java.lang.Integer">
         select count(*) from users where `account_name`=#{accountName}
     </select>
+
+    <select id="findByAccountName" resultMap="usersMap">
+        select * from users where `account_name`=#{accountName};
+    </select>
 </mapper>

@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import top.hyizhou.framework.config.constant.CookieConstant;
+import top.hyizhou.framework.entity.User;
 import top.hyizhou.framework.entity.UserInfo;
+import top.hyizhou.framework.service.AccountService;
 import top.hyizhou.framework.service.LoginService;
 import top.hyizhou.framework.utils.CookieUtil;
 
@@ -30,23 +32,26 @@ public class LoginControl {
 
     private final Logger log = LoggerFactory.getLogger(LoginControl.class);
     private final LoginService loginService;
+    private final AccountService accountService;
 
-    public LoginControl(LoginService loginService) {
+    public LoginControl(LoginService loginService, AccountService accountService) {
         this.loginService = loginService;
+        this.accountService = accountService;
     }
 
     /**
      * 处理登录验证信息
-     * @param userName 用户名
+     * @param accountName 用户名
      * @param password 密码
      * @return 若验证未通过，则返回login页面，且页面具有相关错误提示；若验证通过，则跳转到主页
      */
     @PostMapping("/login")
-    public String login(@ModelAttribute("username") String userName, @ModelAttribute("password") String password,
+    public String login(@ModelAttribute("username") String accountName, @ModelAttribute("password") String password,
                         HttpServletResponse response, Model model) {
-        log.info("接收到请求-username={};password={}", userName, password);
-        if (loginService.allowLogin(userName, password)) {
-            Cookie cookie = new Cookie(CookieConstant.SIGN_IN, userName);
+        log.info("接收到请求-username={};password={}", accountName, password);
+        User user = accountService.verify(accountName, password);
+        if (user != null) {
+            Cookie cookie = new Cookie(CookieConstant.SIGN_IN, accountName);
             cookie.setMaxAge(CookieConstant.SIGN_MAX_AGE);
             cookie.setPath("/");
             response.addCookie(cookie);
@@ -63,10 +68,14 @@ public class LoginControl {
      * @return 成功则返回登录页面，并提示注册成功。失败则继续处于注册页面，并提示错误原因
      */
     @PostMapping(value = "/register")
-    public String register(@ModelAttribute("userName") String username, @ModelAttribute("password") String password, Model model){
+    public String register(@ModelAttribute("userName") String accountName, @ModelAttribute("password") String password, Model model){
         // TODO 判断info信息正确性
         // 写入注册信息是否成功
-        UserInfo info = new UserInfo(username, password);
+        UserInfo info = new UserInfo(accountName, password);
+        User user = new User();
+        user.setAccountName(accountName);
+        user.setPassword(password);
+        user.setName("注册用户");
         if (loginService.register(info)) {
             log.info("注册成功：{}-{}", info.getUserName(), info.getPassword());
             model.addAttribute("alert", "注册成功，请继续登录");

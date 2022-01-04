@@ -24,7 +24,7 @@
 <body>
 <P th:text="${msg}" th:if="${msg} != null"></P>
 <form action="/register" method="post" >
-    用户名 <input name="userName" type="text"> <br>
+    账户名 <input name="userName" type="text"> <br>
     密码 <input name="password" type="password" id="pw" > <br>
     确认密码 <input name="again_password" type="password" id="repw" onblur="checkPassword()"> <br>
     <span id="msg"></span>

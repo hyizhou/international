@@ -19,6 +19,13 @@ public interface UsersMapper {
     User findById(@Param("id") Integer id);
 
     /**
+     * 根据用户名搜索用户
+     * @param accountName 用户名
+     * @return 搜索到的用户信息，可能为null
+     */
+    User findByAccountName(@Param("accountName") String accountName);
+
+    /**
      * 插入一条数据
      * @param user 用户信息实体类
      * @return 插入成功条数，没有问题情况应该要为1
