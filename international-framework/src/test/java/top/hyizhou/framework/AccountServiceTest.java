@@ -45,8 +45,5 @@ public class AccountServiceTest {
         user.setName("test");
         user.setAccountName("test10086");
         user.setPassword("123456");
-        user = service.register(user);
-        System.out.println(user.getId());
-        System.out.println("id值为："+user.getId());
     }
 }

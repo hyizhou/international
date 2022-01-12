@@ -1,5 +1,7 @@
 package top.hyizhou.framework.control;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
  */
 @Controller
 public class ViewControl {
+    private static final Logger log = LoggerFactory.getLogger(ViewControl.class);
     /**
      * 上传页面
      */
@@ -29,6 +32,28 @@ public class ViewControl {
     @GetMapping(value = {"/", "/index"})
     public String mainView(){
         return "index";
+    }
+
+    /**
+     * 响应登录视图
+     */
+    @GetMapping("/login")
+    public String loginView() {
+        if (log.isDebugEnabled()) {
+            log.debug("响应登录视图");
+        }
+        return "login/login";
+    }
+
+    /**
+     * 响应登录视图
+     */
+    @GetMapping("/register")
+    public String registerView(){
+        if (log.isDebugEnabled()) {
+            log.debug("响应注册视图");
+        }
+        return "login/register";
     }
 
 }

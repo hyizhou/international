@@ -38,12 +38,16 @@ public class AccountService {
 
     /**
      * 注册账号的方法，会验证参数是否齐全和规范，并更新获得的id
-     * @param user 实体类
-     * @return 注册成功会返回自动补充数据后的实体类，若参数不正确则返回null
+     * @param user 实体类，注册成功将被更新id值
+     * @return 返回值作为错误提示，若注册成功返回null，注册失败则返回错误原因
      */
-    public User register(User user){
+    public String register(User user){
+        if (isRepeat(user.getAccountName())) {
+            return "账户名重复";
+        }
+        // TODO 可以增加更多验证
         usersMapper.insertOne(user);
-        return user;
+        return null;
     }
 
     /**

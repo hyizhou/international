@@ -10,9 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import top.hyizhou.framework.config.constant.CookieConstant;
 import top.hyizhou.framework.entity.User;
-import top.hyizhou.framework.entity.UserInfo;
 import top.hyizhou.framework.service.AccountService;
-import top.hyizhou.framework.service.LoginService;
 import top.hyizhou.framework.utils.CookieUtil;
 
 import javax.servlet.http.Cookie;
@@ -31,11 +29,9 @@ import java.util.Map;
 public class LoginControl {
 
     private final Logger log = LoggerFactory.getLogger(LoginControl.class);
-    private final LoginService loginService;
     private final AccountService accountService;
 
-    public LoginControl(LoginService loginService, AccountService accountService) {
-        this.loginService = loginService;
+    public LoginControl(AccountService accountService) {
         this.accountService = accountService;
     }
 
@@ -69,20 +65,21 @@ public class LoginControl {
      */
     @PostMapping(value = "/register")
     public String register(@ModelAttribute("userName") String accountName, @ModelAttribute("password") String password, Model model){
-        // TODO 判断info信息正确性
-        // 写入注册信息是否成功
-        UserInfo info = new UserInfo(accountName, password);
+        // 前端页面若使用json能直接包装成实体类
         User user = new User();
         user.setAccountName(accountName);
         user.setPassword(password);
         user.setName("注册用户");
-        if (loginService.register(info)) {
-            log.info("注册成功：{}-{}", info.getUserName(), info.getPassword());
+        String errMsg = accountService.register(user);
+        if (errMsg == null) {
+            // 注册成功
+            log.info("用户注册成功：id: {}---accountName: {}", user.getId(), user.getAccountName());
             model.addAttribute("alert", "注册成功，请继续登录");
             return "login/login";
         }else {
-            log.info("注册失败：{}-{}",info.getUserName(), info.getPassword());
-            model.addAttribute("msg", "注册系统异常，请稍后再试");
+            // 注册失败
+            log.info("用户注册失败，accountName=[{}]; 提示信息：{}", user.getAccountName(), errMsg);
+            model.addAttribute("msg", "注册失败，请检查参数输入情况");
             return "login/register";
         }
     }
@@ -101,24 +98,6 @@ public class LoginControl {
             cookie.setPath("/");
             resp.addCookie(cookie);
         }
-        return "redirect:/login";
-    }
-
-    /**
-     * 响应登录视图
-     */
-    @GetMapping("/login")
-    public String loginView() {
-        log.info("响应登录视图");
-        return "login/login";
-    }
-
-    /**
-     * 响应登录视图
-     */
-    @GetMapping("/register")
-    public String registerView(){
-        log.info("响应注册视图");
-        return "login/register";
+        return "redirect:/login/login";
     }
 }
