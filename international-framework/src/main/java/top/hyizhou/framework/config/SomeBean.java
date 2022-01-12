@@ -3,8 +3,6 @@ package top.hyizhou.framework.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.AntPathMatcher;
-import top.hyizhou.framework.mapper.UserMapping;
-import top.hyizhou.framework.proxy.UserMappingProxy;
 
 /**
  * 产生一些Bean
@@ -21,11 +19,4 @@ public class SomeBean {
         return new AntPathMatcher();
     }
 
-    /**
-     * 数据库查询代理类
-     */
-    @Bean
-    public UserMapping userMapping(){
-        return new UserMappingProxy();
-    }
 }
