@@ -343,16 +343,5 @@ public class FileService {
 
     }
 
-    public static void main(String[] args) {
-        File file = new File("D:/bb.txt");
-        if (file.renameTo(new File(file.getParent()+File.separator+"cc.txt"))) {
-            System.out.println("重命名成功");
-            System.out.println(file.getAbsolutePath());
-            file.getFreeSpace();
-        }else {
-            System.out.println("重命名失败");
-        }
-
-    }
 
 }

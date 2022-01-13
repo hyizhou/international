@@ -1,5 +1,7 @@
 package top.hyizhou.framework.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import top.hyizhou.framework.entity.User;
 import top.hyizhou.framework.mapper.UsersMapper;
@@ -13,6 +15,7 @@ import top.hyizhou.framework.mapper.UsersMapper;
 public class AccountService {
     /** 用户信息表users的mapper */
     private final UsersMapper usersMapper;
+    private final static Logger log = LoggerFactory.getLogger(AccountService.class);
 
     public AccountService(UsersMapper usersMapper) {
         this.usersMapper = usersMapper;
@@ -81,5 +84,57 @@ public class AccountService {
      */
     public boolean isRepeat(String accountName){
         return usersMapper.countAccountName(accountName) >= 1;
+    }
+
+    /**
+     * 修改基础用户信息，
+     * 注意，不能修改账户名：accountName，修改账户名使用方法：modifyAccountName
+     * 不能修改id、accountName、isAdmin、isDelete
+     * @param user 新的用户信息
+     * @return 成功则返回null，失败返回错误提示
+     */
+    public String modify(User user){
+        // 根据账户名找到用户id，再进行修改
+        if (user.getAccountName() == null){
+            return "修改信息时账户名缺失";
+        }
+        // 判断用户是否存在
+        User beforeUser = findUser(user.getId(), user.getAccountName());
+        if (beforeUser == null){
+            return "修改信息是账户不存在";
+        }
+        user.setId(beforeUser.getId());
+
+        // 将不能修改的参数赋值为null
+        user.setAccountName(null);
+        user.setAdmin(null);
+        user.setDelete(null);
+        if (usersMapper.update(user) == 1) {
+            return null;
+        }else {
+            return "数据库更新失败，可能是数据产生变动，请稍后再试";
+        }
+    }
+
+    /**
+     * 修改账户名，由于账户名是唯一的，所以修改账户名需要保证唯一性
+     * @param oldName 旧账户名
+     * @param newName 新账户名
+     * @return 成功则返回null，否则就是失败，此时返回错误提示，如不存在此账户、账户名重复
+     */
+    public String modifyAccountName(String oldName, String newName){
+        if (usersMapper.countAccountName(newName) != 0) {
+            return "新账户名已被注册";
+        }
+        User user = findUser(null, oldName);
+        if (user == null){
+            return "找不到此用户";
+        }
+        user.setAccountName(newName);
+        if (usersMapper.update(user) == 1) {
+            return null;
+        }else {
+            return "数据库修改失败，可能是数据发生变动，请稍后再试";
+        }
     }
 }

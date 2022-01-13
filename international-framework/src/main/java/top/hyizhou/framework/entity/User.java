@@ -110,7 +110,7 @@ public class User {
                 ", isDelete=" + isDelete +
                 ", email='" + email + '\'' +
                 ", phone='" + phone + '\'' +
-                ", column1='" + accountName + '\'' +
+                ", accountName='" + accountName + '\'' +
                 ", column2='" + column2 + '\'' +
                 '}';
     }
