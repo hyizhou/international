@@ -123,13 +123,18 @@ public class AccountService {
      * @return 成功则返回null，否则就是失败，此时返回错误提示，如不存在此账户、账户名重复
      */
     public String modifyAccountName(String oldName, String newName){
+        if (oldName == null || newName == null){
+            return "账户名不能为空";
+        }
         if (usersMapper.countAccountName(newName) != 0) {
             return "新账户名已被注册";
         }
-        User user = findUser(null, oldName);
-        if (user == null){
+        User oldInfo = findUser(null, oldName);
+        if (oldInfo == null){
             return "找不到此用户";
         }
+        User user = new User();
+        user.setId(oldInfo.getId());
         user.setAccountName(newName);
         if (usersMapper.update(user) == 1) {
             return null;
