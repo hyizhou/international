@@ -109,6 +109,7 @@ public class AccountService {
         user.setAccountName(null);
         user.setAdmin(null);
         user.setDelete(null);
+        user.setCreateTime(null);
         if (usersMapper.update(user) == 1) {
             return null;
         }else {
@@ -141,5 +142,21 @@ public class AccountService {
         }else {
             return "数据库修改失败，可能是数据发生变动，请稍后再试";
         }
+    }
+
+    /**
+     * 将账号消号
+     * @param id 用户索引值
+     * @return 成功则返回true
+     */
+    public boolean deleteAccount(Integer id){
+        if (id == null){
+            throw new RuntimeException("注销用户时id为空");
+        }
+        User deleteUser = new User();
+        deleteUser.setId(id);
+        deleteUser.setDelete(true);
+        // 更新is_delete字段记录为一条，则为成功
+        return usersMapper.update(deleteUser) == 1;
     }
 }

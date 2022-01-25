@@ -2,7 +2,6 @@ package top.hyizhou.framework.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
@@ -10,6 +9,8 @@ import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+import java.util.ArrayList;
 
 /**
  * swagger2配置
@@ -22,26 +23,42 @@ public class Swagger2Config {
     @Bean
     public Docket buildDocket(){
         return new Docket(DocumentationType.SWAGGER_2)
+                .groupName("API")
+                .apiInfo(new ApiInfo(
+                        // 标题
+                        "international",
+                        // 描述
+                        "描述",
+                        // 版本
+                        "1.01",
+                        // 服务条款
+                        "http://www.baidu.top",
+                        // 作者信息
+                        new Contact(
+                                // 作者名
+                                "hyizhou",
+                                // 作者网站
+                                "http://www.baidu.top/",
+                                // 邮件
+                                "null"),
+                        // 许可证
+                        "Apache 2.0",
+                        // 许可证版本
+                        "http://www.apache.org/license/license-2.0",
+                        // 供应商列表
+                        new ArrayList()
+                ))
                 .pathMapping("/")
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("top.hyizhou.framework.control"))
-                .paths(PathSelectors.any())
-                .build().apiInfo(new ApiInfoBuilder()
-                        .title("swgger2测试")
-                        .contact(new Contact("啊啊啊啊","blog.csdn.net","aaa@gmail.com"))
-                        .build()
-                );
+                    // 配置要扫描哪些接口
+                    // basePackage：按包扫描，any：都扫描、none：不扫描，
+                    // withClassAnnotation：按照给定的类注解扫描，withMethodAnnotation：根据给定的方法注解扫描
+                    .apis(RequestHandlerSelectors.basePackage("top.hyizhou.framework.control"))
+                    // 路径过滤
+                    // any：所有路径都放行；none：都不放行；regex：按正则匹配；ant：可使用**进行路径匹配
+                    .paths(PathSelectors.any())
+                    .build()
+                .enable(true);
     }
 
-    private ApiInfo buildApiInfo(){
-        return new ApiInfoBuilder()
-                //页面标题，导入postman时必须有该项配置
-                .title("模拟创建仿真数据")
-                //版本号，导入postman时必须有该项配置
-                .version("1.0")
-                .description("视频大数据平台基线V1.1-区域分析-业务数据构造")
-                //创建人
-                .contact(new Contact("jiangmy","http://localhost:80/swagger-ui.html","jiangmy@dragoninfo.com.cn"))
-                .build();
-    }
 }

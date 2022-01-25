@@ -20,7 +20,7 @@ import java.util.Map;
 
 /**
  * 提供账户相关接口
- * TODO 对于此处的接口，需要拦截器验证其操作的是自己账户后才能放行
+ * TODO 对于此处的接口，需要拦截器验证其操作的是自己账户后才能放行，既然是自己账户，应该不需要在方法参数上传入用户相关信息了
  *
  * @author hyizhou
  * @date 2022/1/13 15:16
@@ -45,7 +45,7 @@ public class AccountControl {
     @ResponseBody
     @Transactional(rollbackFor = Exception.class)
     @ApiOperation(value = "修改用户信息", notes = "不能修改账户名")
-    public ResponseEntity<MsgResp> modify(@RequestBody User user) {
+    public ResponseEntity<MsgResp> modify( @RequestBody User user) {
         if (log.isDebugEnabled()) {
             log.debug("修改信息：{}", user.toString());
         }
@@ -77,6 +77,17 @@ public class AccountControl {
             return ResponseEntity.status(400).body(new MsgResp(errMsg));
         }
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    /**
+     * 注销账户
+     * @return 响应值
+     */
+    public MsgResp cancelAccount(User user){
+        if (accountService.deleteAccount(user.getId())) {
+            return new MsgResp(null);
+        }
+        return new MsgResp("注销账号失败");
     }
 
 

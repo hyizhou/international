@@ -4,6 +4,8 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 import top.hyizhou.framework.entity.User;
 
+import java.util.List;
+
 /**
  * 用户数据表映射
  * @author hyizhou
@@ -24,6 +26,15 @@ public interface UsersMapper {
      * @return 搜索到的用户信息，可能为null
      */
     User findByAccountName(@Param("accountName") String accountName);
+
+    /**
+     * 进行模糊查询，若所有查询属性都为空，则会返回所有用户信息
+     * @param user 作为模糊查询的属性，具体可以查询：用户名，邮件、手机号、账户名
+     * @param page 页面
+     * @param size 每页大小
+     * @return 模糊查询的用户信息
+     */
+    List<User> findByVague(@Param("user") User user, @Param("page") Integer page,@Param("size") Integer size);
 
     /**
      * 插入一条数据

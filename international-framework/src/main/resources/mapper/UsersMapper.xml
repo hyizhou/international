@@ -129,4 +129,23 @@
     <select id="findByAccountName" resultMap="usersMap">
         select * from users where `account_name`=#{accountName};
     </select>
+
+    <select id="findByVague" resultMap="usersMap">
+        select * from users
+        <where>
+            <if test="user.name != null">
+                name like '%${user.name}%'
+            </if>
+            <if test="user.email != null">
+                and email like '%${user.email}%'
+            </if>
+            <if test="user.phone != null">
+                and phone like '%${user.phone}%'
+            </if>
+            <if test="user.accountName != null">
+                and account_name like '%${user.accountName}%'
+            </if>
+        </where>
+        limit  #{page},#{size}
+    </select>
 </mapper>

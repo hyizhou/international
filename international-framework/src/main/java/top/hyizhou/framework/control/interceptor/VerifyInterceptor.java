@@ -50,7 +50,8 @@ public class VerifyInterceptor implements HandlerInterceptor {
     }
 
     /**
-     * 判断cookie中登录标识符内容是否正确
+     * 判断cookie中登录标识符内容是否正确 <br/>
+     * 标识符为登录标识，加密存储与cookie，在本方法中解密后，将标志与本系统“已登录用户容器”比较，若在容器中存在才放行
      * @param value 标识符内容
      * @return true则是正确的
      */

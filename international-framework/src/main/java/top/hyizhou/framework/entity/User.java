@@ -1,5 +1,8 @@
 package top.hyizhou.framework.entity;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.util.Date;
 
 /**
@@ -7,7 +10,9 @@ import java.util.Date;
  * @author hyizhou
  * @date 2021/12/31 11:08
  */
+@ApiModel("用户信息实体类")
 public class User {
+    @ApiModelProperty("id值")
     private Integer id;
     private String name;
     private String password;
