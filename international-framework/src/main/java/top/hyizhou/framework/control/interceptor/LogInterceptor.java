@@ -17,7 +17,7 @@ public class LogInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        log.info("新的请求--请求地址：{}, 客户机ip：{}", request.getRequestURI(), request.getRemoteAddr());
+        log.info(">>> 请求日志记录拦截器：请求地址：{}, 客户机ip：{}", request.getRequestURI(), request.getRemoteAddr());
         return true;
     }
 }

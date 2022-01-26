@@ -2,9 +2,11 @@ package top.hyizhou.framework.control.interceptor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import top.hyizhou.framework.config.constant.CookieConstant;
 import top.hyizhou.framework.utils.CookieUtil;
+import top.hyizhou.framework.utils.container.LoggedOnContainer;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -18,23 +20,30 @@ import java.util.Map;
  * @author hyizhou
  * @date 2021/12/23 10:49
  */
+@Component
 public class VerifyInterceptor implements HandlerInterceptor {
     private final Logger log = LoggerFactory.getLogger(VerifyInterceptor.class);
+    /** 已登录用户容器 */
+    private final LoggedOnContainer container;
+
+    public VerifyInterceptor(LoggedOnContainer container) {
+        this.container = container;
+    }
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        log.info("进入登录校验拦截器");
-        boolean isLogin =  "/login".equals(request.getRequestURI());
-        boolean passed;
+        boolean isLoginUrl =  "/login".equals(request.getRequestURI());
         // 通过cookie判断是否登录
         Map<String, Cookie> cookieMap = CookieUtil.getCookieMap(request);
         Cookie signInCookie = cookieMap.get(CookieConstant.SIGN_IN);
-        passed = signInCookie != null && judge(signInCookie.getValue());
         // 未登录状态
-        if (!passed){
-            if (isLogin){
+        if (signInCookie == null || !judge(signInCookie.getValue())){
+            // 未登录访问登录页，放行；其他页面跳转到登录页
+            if (isLoginUrl){
+                log.debug(">>> 登录校验拦截器--进入登录页");
                 return true;
             }
-            log.info("cookie值显示未登录哦");
+            log.debug(">>> 登录校验拦截器--验证失败，跳转到登录页");
             response.sendRedirect("/login");
             return false;
         }
@@ -43,22 +52,26 @@ public class VerifyInterceptor implements HandlerInterceptor {
         signInCookie.setMaxAge(CookieConstant.SIGN_MAX_AGE);
         signInCookie.setPath("/");
         response.addCookie(signInCookie);
-        if (isLogin){
+        // 已登录且访问登录页，则跳转到主页
+        if (isLoginUrl){
+            log.debug(">>> 登录校验拦截器--已登录跳转主页");
             response.sendRedirect("/index");
         }
+        log.debug(">>> 登录校验拦截器--已验证登录");
         return true;
     }
 
     /**
      * 判断cookie中登录标识符内容是否正确 <br/>
-     * 标识符为登录标识，加密存储与cookie，在本方法中解密后，将标志与本系统“已登录用户容器”比较，若在容器中存在才放行
+     * 标识符为登录标识，判断标志是否在已登录用户列表中
      * @param value 标识符内容
      * @return true则是正确的
      */
     private boolean judge(String value){
+        log.debug("登录校验码：{}", value);
         if (value == null){
             return false;
         }
-        return true;
+        return container.exist(value);
     }
 }

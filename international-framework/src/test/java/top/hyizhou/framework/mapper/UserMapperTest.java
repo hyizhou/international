@@ -3,6 +3,7 @@ package top.hyizhou.framework.mapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 import top.hyizhou.framework.entity.User;
 
 import java.util.List;
@@ -27,5 +28,13 @@ public class UserMapperTest {
         for (User user1 : userList) {
             System.out.println(user1);
         }
+    }
+
+    @Test
+    @Transactional
+    public void findById(){
+        User user1 = mapper.findById(2);
+        User user2 = mapper.findById(2);
+        System.out.println("两次查询是否一致："+ (user2==user1));
     }
 }

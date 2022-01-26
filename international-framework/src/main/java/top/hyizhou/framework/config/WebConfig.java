@@ -16,6 +16,12 @@ import top.hyizhou.framework.control.interceptor.VerifyInterceptor;
 @MapperScan("top.hyizhou.framework.mapper")
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
+    private final VerifyInterceptor verifyInterceptor;
+
+    public WebConfig(VerifyInterceptor verifyInterceptor) {
+        this.verifyInterceptor = verifyInterceptor;
+    }
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         // 记录请求日志拦截器
@@ -23,6 +29,6 @@ public class WebConfig implements WebMvcConfigurer {
         // 过量请求拦截器
         registry.addInterceptor(new AccessLimitInterceptor());
         // 验证登录拦截器
-        registry.addInterceptor(new VerifyInterceptor()).excludePathPatterns( "/**","/test/**","/register", "/error**");
+        registry.addInterceptor(verifyInterceptor).excludePathPatterns( "/test/**","/register", "/error**");
     }
 }

@@ -3,6 +3,7 @@ package top.hyizhou.framework.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.AntPathMatcher;
+import top.hyizhou.framework.utils.container.LoggedOnContainer;
 
 /**
  * 产生一些Bean
@@ -17,6 +18,14 @@ public class SomeBean {
     @Bean
     public AntPathMatcher antPathMatcher(){
         return new AntPathMatcher();
+    }
+
+    /**
+     * 已登录状态存储容器
+     */
+    @Bean
+    public LoggedOnContainer loggedOnContainer(){
+        return new LoggedOnContainer();
     }
 
 }

@@ -39,9 +39,6 @@ public class ViewControl {
      */
     @GetMapping("/login")
     public String loginView() {
-        if (log.isDebugEnabled()) {
-            log.debug("响应登录视图");
-        }
         return "login/login";
     }
 
@@ -50,9 +47,6 @@ public class ViewControl {
      */
     @GetMapping("/register")
     public String registerView(){
-        if (log.isDebugEnabled()) {
-            log.debug("响应注册视图");
-        }
         return "login/register";
     }
 

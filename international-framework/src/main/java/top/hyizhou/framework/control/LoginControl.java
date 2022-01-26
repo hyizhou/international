@@ -12,6 +12,7 @@ import top.hyizhou.framework.config.constant.CookieConstant;
 import top.hyizhou.framework.entity.User;
 import top.hyizhou.framework.service.AccountService;
 import top.hyizhou.framework.utils.CookieUtil;
+import top.hyizhou.framework.utils.container.LoggedOnContainer;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -30,9 +31,12 @@ public class LoginControl {
 
     private final Logger log = LoggerFactory.getLogger(LoginControl.class);
     private final AccountService accountService;
+    /** 用户登录状态容器 */
+    private final LoggedOnContainer loggedOnContainer;
 
-    public LoginControl(AccountService accountService) {
+    public LoginControl(AccountService accountService, LoggedOnContainer loggedOnContainer) {
         this.accountService = accountService;
+        this.loggedOnContainer = loggedOnContainer;
     }
 
     /**
@@ -46,14 +50,17 @@ public class LoginControl {
                         HttpServletResponse response, Model model) {
         log.info("接收到请求-username={};password={}", accountName, password);
         User user = accountService.verify(accountName, password);
+
+        // 添加cookie
         if (user != null) {
-            Cookie cookie = new Cookie(CookieConstant.SIGN_IN, accountName);
+            String key = loggedOnContainer.addLoginUser(user.getId(), CookieConstant.SIGN_MAX_AGE);
+            Cookie cookie = new Cookie(CookieConstant.SIGN_IN, key);
             cookie.setMaxAge(CookieConstant.SIGN_MAX_AGE);
             cookie.setPath("/");
             response.addCookie(cookie);
             return "redirect:/index";
         }
-        log.info("密码错误");
+        log.debug("密码错误");
         model.addAttribute("alert", "密码或账户名错误");
         return "login/login";
     }
