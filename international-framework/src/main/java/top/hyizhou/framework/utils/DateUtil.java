@@ -1,5 +1,6 @@
 package top.hyizhou.framework.utils;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -22,5 +23,16 @@ public class DateUtil {
         Date date = addDate(30);
         System.out.println(date);
         System.out.println(new Date());
+        System.out.println(new Date().before(date));
+        System.out.println(new Date().after(date));
+    }
+
+    /**
+     * 获取方便阅读的当前时间
+     * @return 当前时间格式化后形式
+     */
+    public static String currentTimeReadable(){
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return format.format(new Date());
     }
 }

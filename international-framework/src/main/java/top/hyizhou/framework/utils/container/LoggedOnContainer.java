@@ -5,6 +5,9 @@ import top.hyizhou.framework.utils.DateUtil;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 /**
  * 存储用户登录状态，已经登录用户特征值将存储在此容器中
@@ -12,7 +15,7 @@ import java.util.*;
  * @date 2022/1/25 17:50
  */
 public class LoggedOnContainer {
-    private static class LoggedOnInfo{
+    public static class LoggedOnInfo{
         /** 用户id */
         private Integer userId;
         /** 过期时间 */
@@ -33,11 +36,21 @@ public class LoggedOnContainer {
         public void setDate(Date date) {
             this.date = date;
         }
+
+        @Override
+        public String toString() {
+            return "LoggedOnInfo{" +
+                    "userId=" + userId +
+                    ", date=" + date +
+                    '}';
+        }
     }
 
     /**
-     * 存储已经登录用户，hash -- userId
-     * TODO 问题：若登录用户不主动注销，如何清除冗余信息。
+     * 存储已经登录用户，hash -- userInfo，
+     * hash存储与浏览器cookie，userInfo为用户id与过期时间，此过期时间与cookie过期时间一般一致，
+     * 当有用户重复登录时，会产生多个userInfo，这些userInfo并不一样，每个都为不同的过期时间，
+     * 表示用户在不同设备上有着不同的登录时限
      */
     private final Map<String, LoggedOnInfo> map;
 
@@ -98,6 +111,14 @@ public class LoggedOnContainer {
     }
 
     /**
+     * 获取所有登录信息
+     * @return map
+     */
+    public Map<String, LoggedOnInfo> getAll(){
+        return map;
+    }
+
+    /**
      * 通过用户实体对象生成对应的key
      * @param userId 用户实体对象
      * @return key
@@ -116,13 +137,19 @@ public class LoggedOnContainer {
     }
 
     /**
-     * 清理容器中冗余信息
+     * 清理容器中冗余信息，拥有线程锁，正在清理时，禁止对容器进行其他操作
      * @return 清理的信息条数
      */
-    public int clear(){
-        List keyList = new ArrayList();
-        map.entrySet().stream().filter(x-> x.getValue().getDate().after(new Date()))
-                .map(e -> e.getKey());
-        return 1;
+    public synchronized int clear(){
+        // 线程安全的包装类方便在lambda表达式中操作
+        AtomicInteger len = new AtomicInteger(0);
+        map.entrySet().removeIf(e -> {
+            if (e.getValue().getDate().before(new Date())) {
+                len.addAndGet(1);
+                return true;
+            }
+            return false;
+        });
+        return len.get();
     }
 }
