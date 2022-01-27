@@ -101,6 +101,7 @@ public class LoginControl {
         Cookie cookie = cookieMap.get(CookieConstant.SIGN_IN);
         if (cookie != null){
             log.info("{}用户进行注销操作",cookie.getValue());
+            loggedOnContainer.removeLoginUser(cookie.getValue());
             cookie.setMaxAge(0);
             cookie.setPath("/");
             resp.addCookie(cookie);

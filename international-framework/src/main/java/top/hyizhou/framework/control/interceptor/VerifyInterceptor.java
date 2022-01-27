@@ -52,6 +52,8 @@ public class VerifyInterceptor implements HandlerInterceptor {
         signInCookie.setMaxAge(CookieConstant.SIGN_MAX_AGE);
         signInCookie.setPath("/");
         response.addCookie(signInCookie);
+        // 刷新容器中登录信息存活时间
+        container.updateSurvivalTime(signInCookie.getValue(), CookieConstant.SIGN_MAX_AGE);
         // 已登录且访问登录页，则跳转到主页
         if (isLoginUrl){
             log.debug(">>> 登录校验拦截器--已登录跳转主页");

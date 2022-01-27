@@ -12,11 +12,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import top.hyizhou.framework.entity.User;
 import top.hyizhou.framework.mapper.UsersMapper;
+import top.hyizhou.framework.utils.container.LoggedOnContainer;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.util.Map;
 
 /**
  * @author hyizhou
@@ -26,6 +28,8 @@ import java.io.*;
 public class TestControl {
     @Autowired
     private UsersMapper usersMapper;
+    @Autowired
+    private LoggedOnContainer container;
     private final Logger logger = LoggerFactory.getLogger(TestControl.class);
     @RequestMapping("/test/1")
     public String test1(RedirectAttributes attributes){
@@ -55,6 +59,15 @@ public class TestControl {
         user.setName("小原");
         System.out.println("更新条数："+usersMapper.update(user));
         return "ok";
+    }
+
+    /**
+     * 查看登录信息容器所有数据
+     */
+    @RequestMapping("/test/getLoggedOn")
+    @ResponseBody
+    public Map<String, LoggedOnContainer.LoggedOnInfo> getLoggedOn(){
+        return container.getAll();
     }
 
     // 断点下载

@@ -4,10 +4,10 @@ import org.springframework.util.DigestUtils;
 import top.hyizhou.framework.utils.DateUtil;
 
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 /**
  * 存储用户登录状态，已经登录用户特征值将存储在此容器中
@@ -104,7 +104,7 @@ public class LoggedOnContainer {
     /**
      * 查询登录用户
      * @param key key
-     * @return 用户实体对象
+     * @return 用户实体对象id
      */
     public Integer getLoginUser(String key){
         return map.get(key).getUserId();
@@ -151,5 +151,13 @@ public class LoggedOnContainer {
             return false;
         });
         return len.get();
+    }
+
+    /**
+     * 刷新存活时间
+     */
+    public void updateSurvivalTime(String key, Integer age){
+        LoggedOnInfo info = map.get(key);
+        info.setDate(DateUtil.addDate(age));
     }
 }
