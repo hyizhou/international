@@ -1,7 +1,7 @@
 package top.hyizhou.framework.mapper;
 
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.stereotype.Repository;
 import top.hyizhou.framework.entity.User;
 
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.List;
  * @author hyizhou
  * @date 2021/12/31 11:12
  */
-@Repository
+@Mapper
 public interface UsersMapper {
     /**
      *  根据id查找用用户
