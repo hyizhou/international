@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.hyizhou.framework.mapper.SharedMapper">
+    <resultMap id="sharedMap" type="top.hyizhou.framework.pojo.SharedPojo">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="path" jdbcType="VARCHAR" property="path"/>
+        <result column="is_file" jdbcType="BOOLEAN" property="isFile"/>
+        <result column="info_id" jdbcType="INTEGER" property="infoId"/>
+        <result column="shared_time" jdbcType="TIMESTAMP" property="sharedTime"/>
+        <result column="nu_down" jdbcType="INTEGER" property="nuDown"/>
+    </resultMap>
+    <insert id="insert">
+        insert into shared
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            `id`,`user_id`,`path`,
+            <if test="isFile != null">
+                `is_file`,
+            </if>
+            <if test="infoId != null">
+                `info_id`,
+            </if>
+            <if test="sharedTime != null">
+                `shared_time`,
+            </if>
+            <if test="nuDown != null">
+                `nu_down`
+            </if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            #{id},#{userId},#{path},
+            <if test="isFile != null">
+                #{isFile},
+            </if>
+            <if test="infoId != null">
+                #{infoId},
+            </if>
+            <if test="sharedTime != null">
+                #{sharedTime},
+            </if>
+            <if test="nuDown != null">
+                #{nuDown}
+            </if>
+        </trim>
+    </insert>
+    <update id="update">
+        update shared
+        <set>
+            <if test="userId != null">
+                `user_id`=#{userId},
+            </if>
+            <if test="path != null">
+                `path` = #{path},
+            </if>
+            <if test="isFile != null">
+                `is_file`=#{isFile},
+            </if>
+            <if test="infoId != null">
+                `info_id` = #{infoId},
+            </if>
+            <if test="sharedTime != null">
+                `shared_time`=#{sharedTime},
+            </if>
+            <if test="nuDown != null">
+                `nu_down`=#{nuDown}
+            </if>
+        </set>
+    </update>
+
+    <select id="findAll" resultMap="sharedMap">
+        select * from shared
+    </select>
+
+    <select id="findByUserId" resultMap="sharedMap">
+        select * from shared where user_id=#{value}
+    </select>
+
+    <select id="findById" resultMap="sharedMap">
+        select * from shared where id=#{id}
+    </select>
+</mapper>

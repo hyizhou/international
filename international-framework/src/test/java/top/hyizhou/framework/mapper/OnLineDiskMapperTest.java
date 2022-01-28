@@ -20,13 +20,22 @@ public class OnLineDiskMapperTest {
     }
 
     @Test
-    public void insertOne(){
+    public void insert(){
         OnLineDisk onLineDisk = new OnLineDisk();
-        onLineDisk.setUserId(12);
-        onLineDisk.setDirName("test1");
+        onLineDisk.setUserId(1);
+        onLineDisk.setDirName("test2");
         onLineDisk.setAllSize(10240L);
         onLineDisk.setUseSize(0L);
-        int i = mapper.insertOne(onLineDisk);
+        int i = mapper.insert(onLineDisk);
         System.out.println("插入条数："+i);
+    }
+
+    @Test
+    public void update(){
+        OnLineDisk date = mapper.findById(2);
+        System.out.println(date);
+        date.setUseSize(1L);
+        int len = mapper.update(date);
+        System.out.println("更新条数："+len);
     }
 }

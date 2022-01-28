@@ -27,10 +27,17 @@ public interface OnLineDiskMapper {
     List<OnLineDisk> findAll();
 
     /**
-     * 添加一行数据
-     * @param onLineDisk 一行实体类
-     * @return 成功则返回1
+     * 添加一行数据，添加前判断userId是否在用户表中存在，因此必须指定userid再插入
+     * @param onLineDisk 实体类
+     * @return 成功则返回1，添加失败返回0
      */
-    int insertOne(OnLineDisk onLineDisk);
+    int insert(OnLineDisk onLineDisk);
+
+    /**
+     * 更新
+     * @param onLineDisk 实体类对象
+     * @return 返回更新条数
+     */
+    int update(OnLineDisk onLineDisk);
 
 }
