@@ -45,4 +45,12 @@ public interface SharedMapper {
      * @return 操作条数
      */
     int update(SharedPojo sharedPojo);
+
+
+    /**
+     * 删除一条记录
+     * @param id 删除记录的id值
+     * @return 删除条数
+     */
+    int delete(Integer id);
 }

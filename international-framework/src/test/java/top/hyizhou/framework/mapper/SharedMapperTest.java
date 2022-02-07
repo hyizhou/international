@@ -27,11 +27,17 @@ public class SharedMapperTest {
     @Test
     public void insert(){
         SharedPojo pojo = new SharedPojo();
-        pojo.setId(1);
+        pojo.setId(2);
         pojo.setIsFile(true);
         pojo.setPath("test1/aaa");
         pojo.setUserId(12);
         int len = mapper.insert(pojo);
         System.out.println("成功插入条数："+len);
+    }
+
+    @Test
+    public void delete(){
+        int deleteLen = mapper.delete(2);
+        System.out.println("删除成功条数："+deleteLen);
     }
 }

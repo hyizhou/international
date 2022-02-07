@@ -79,4 +79,8 @@
     <select id="findById" resultMap="sharedMap">
         select * from shared where id=#{id}
     </select>
+
+    <delete id="delete" parameterType="java.lang.Integer">
+        delete from shared where id=#{id}
+    </delete>
 </mapper>
