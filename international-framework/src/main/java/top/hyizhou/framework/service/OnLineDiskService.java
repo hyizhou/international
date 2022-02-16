@@ -5,8 +5,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import org.springframework.web.multipart.MultipartFile;
 import top.hyizhou.framework.config.property.BaseProperty;
+import top.hyizhou.framework.entity.SimpleFileInfo;
 import top.hyizhou.framework.entity.User;
+import top.hyizhou.framework.except.OnLineDiskException;
 import top.hyizhou.framework.mapper.OnLineDiskMapper;
 import top.hyizhou.framework.mapper.SharedMapper;
 import top.hyizhou.framework.pojo.OnLineDisk;
@@ -16,6 +19,7 @@ import top.hyizhou.framework.utils.FilesUtil;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * 云盘服务 <br/>
@@ -129,10 +133,41 @@ public class OnLineDiskService {
     }
 
     /**
-     * todo 存储文件
+     * 存储文件
+     * @param path 存储文件位置，是前端获得的虚拟位置并不是实际物理位置
+     * @return true为成功，false则表示失败，若未抛出异常，则返回前端失败原因默认为“系统异常”
      */
-    public void save(){
+    public boolean save(User user, MultipartFile file, String path) throws OnLineDiskException {
+        // 判断上传的文件是否为空
+        if (null == file || file.isEmpty()){
+            log.error("云盘文件存储完成 -- 但文件为空");
+            return true;
+        }
+        // todo 判断path是否标准
 
+        // 获取剩余空间大小
+        OnLineDisk userDisk = onLineDiskMapper.findById(user.getId());
+        if (userDisk == null){
+            log.error("云盘文件存储失败 -- 用户未开通云盘");
+            throw new OnLineDiskException("未开通云盘");
+        }
+        // 拼接存储路径
+        path = userDisk.getDirName() + File.separator + path;
+        long freeSize = userDisk.getAllSize() - userDisk.getUseSize();
+        // 获取文件判断文件是否过大
+        if (file.getSize() > freeSize) {
+            log.error("云盘文件存储失败 -- 空间不足，文件大小：[{}]，剩余空间:[{}]", file.getSize(), freeSize);
+            throw new OnLineDiskException("文件过大");
+        }
+        // 将文件写入仓库
+        try {
+            file.transferTo(new File(path));
+        } catch (IOException e) {
+            log.error("云盘文件存储失败 -- 文件写入异常");
+            log.error("", e);
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -141,9 +176,18 @@ public class OnLineDiskService {
     public void read(){}
 
     /**
-     * todo 读取目录
+     * 读取目录
      */
-    public void list(){}
+    public List<SimpleFileInfo> list(User user, String path) throws OnLineDiskException {
+        // 判断用户是否存在
+        OnLineDisk onLineDisk = onLineDiskMapper.findById(user.getId());
+        if (null == onLineDisk){
+            log.error("用户未开通云盘：{}", user);
+            throw new OnLineDiskException("用户未开通云盘");
+        }
+        // todo 判断path正确性
+        return null;
+    }
 
     /**
      * todo 分享文件
