@@ -8,11 +8,11 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 
 /**
- * 文件工具类
+ * 编辑工具类，主要用于按字符或流形式读取/写入文件
  * @author hyizhou
  * @date 2021/9/2 10:39
  */
-public class FileUtil {
+public class EditUtil {
     private static final String CHARSET = "utf8";
 
     /**
