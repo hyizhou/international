@@ -2,6 +2,8 @@ package top.hyizhou.framework.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.PathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
@@ -171,9 +173,26 @@ public class OnLineDiskService {
     }
 
     /**
-     * todo 读取单文件
+     * 读取单文件
+     * @param user 用户信息
+     * @param file 文件路径
+     * @return 资源对象，继承是输入流，方便将文件返回给前端
      */
-    public void read(){}
+    public Resource read(User user, String file) throws OnLineDiskException {
+        // 判断用户是否存在
+        OnLineDisk onLineDisk = onLineDiskMapper.findById(user.getId());
+        if (null == onLineDisk){
+            log.error("用户未开通云盘：{}", user);
+            throw new OnLineDiskException("用户未开通云盘");
+        }
+        file = onLineDisk.getDirName()+ File.separator + file;
+        if (!new File(file).exists()) {
+            log.error("读取文件失败 -- 文件路径不存在：file={}", file);
+            throw new OnLineDiskException("文件路径不存在");
+        }
+        // 返回资源对象
+        return new PathResource(file);
+    }
 
     /**
      * 读取目录
@@ -185,14 +204,26 @@ public class OnLineDiskService {
             log.error("用户未开通云盘：{}", user);
             throw new OnLineDiskException("用户未开通云盘");
         }
+        path = onLineDisk.getDirName()+ File.separator + path;
         // todo 判断path正确性
-        return null;
+        File dir = new File(path);
+        // 判断是否存在
+        if (!dir.exists()) {
+            log.error("目录读取 -- 读取的目录不存在：path={}", path);
+            throw new OnLineDiskException("读取目录不存在");
+        }
+        if (!dir.isDirectory()){
+            log.error("目录读取 -- 读取路径并不是目录：path={}", path);
+            throw new OnLineDiskException("读取目录不存在");
+        }
+        return SimpleFileInfo.createSimpleFileInfo(dir.listFiles());
     }
 
     /**
      * todo 分享文件
      */
     public void shared(){}
+
 
     /**
      * 写一些配置

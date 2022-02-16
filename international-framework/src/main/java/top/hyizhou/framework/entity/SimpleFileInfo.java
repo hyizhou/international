@@ -1,5 +1,9 @@
 package top.hyizhou.framework.entity;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 简单文件信息
  * @author hyizhou
@@ -17,6 +21,20 @@ public class SimpleFileInfo {
     public SimpleFileInfo(String name, boolean isDirectory) {
         this.name = name;
         this.isDirectory = isDirectory;
+    }
+
+    public static List<SimpleFileInfo> createSimpleFileInfo(File[] files){
+        if (files == null){
+            return new ArrayList<>();
+        }
+        // 也许可以换成流式写法
+        List<SimpleFileInfo> req = new ArrayList<>();
+        for (File file : files) {
+            SimpleFileInfo simpleFileInfo = new SimpleFileInfo(file.getName(), file.isDirectory());
+            simpleFileInfo.setLength(file.length());
+            req.add(simpleFileInfo);
+        }
+        return req;
     }
 
     public String getName() {
