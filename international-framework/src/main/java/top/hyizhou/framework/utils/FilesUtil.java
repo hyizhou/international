@@ -17,6 +17,10 @@ import java.nio.file.attribute.BasicFileAttributes;
  * @date 2022/2/16 15:52
  */
 public class FilesUtil {
+    /** 分隔符 */
+    public static String separator = "/";
+    /** windows下分隔符 */
+    public static String winSeparator = "\\";
     /**
      * 递归删除文件或目录
      */
@@ -36,6 +40,58 @@ public class FilesUtil {
 
     public static void rm(String file) throws IOException {
         rm(file, false);
+    }
+
+    /**
+     * 将多个目录拼接成完整路径
+     * @param dirs 目录
+     * @return 拼接后的路径
+     */
+    public static String join(String... dirs){
+        StringBuilder str = new StringBuilder();
+        if (dirs == null){
+            return "";
+        }
+        int i = 0;
+        String tmp;
+        if (dirs.length > 0){
+            tmp = dirs[0];
+            tmp = tmp.replace('\\', '/');
+            str.append(tmp);
+            i++;
+        }
+        for (; i < dirs.length; i++) {
+            tmp = dirs[i];
+            if (StrUtil.isEmpty(tmp)){
+                continue;
+            }
+            // 将可能出现的斜杠分隔符做替换
+            tmp = tmp.replace('\\', '/');
+            // 前缀已经带有分隔符
+            if (tmp.charAt(0) == '/') {
+                str.append(tmp);
+            } else {
+                str.append(separator).append(tmp);
+            }
+        }
+        return str.toString();
+    }
+
+    /**
+     * 获取目录或文件大小
+     * @return 大小，单位byte
+     */
+    public static long size(File file) throws IOException {
+        if (file.isFile()) {
+            return file.length();
+        }
+        SizeOfFolderVisitor visitor = new SizeOfFolderVisitor();
+        Files.walkFileTree(file.toPath(), visitor);
+        return visitor.getSize();
+    }
+
+    public static long size(String path) throws IOException{
+        return size(new File(path));
     }
 
     /**
@@ -70,6 +126,28 @@ public class FilesUtil {
             }
             throw exc;
         }
+    }
+
+    /**
+     * 递归获取目录大小
+     */
+    private static class SizeOfFolderVisitor extends SimpleFileVisitor<Path>{
+        private long size = 0;
+
+        public long getSize() {
+            return size;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            size += attrs.size();
+            return FileVisitResult.CONTINUE;
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
+        String path = "D:\\文件测试文件夹";
+        System.out.println(size(new File(path)));
     }
 
 }

@@ -40,4 +40,9 @@ public interface OnLineDiskMapper {
      */
     int update(OnLineDisk onLineDisk);
 
+    /**
+     * 删除
+     */
+    int delete(@Param("userId") Integer userId);
+
 }

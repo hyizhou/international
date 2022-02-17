@@ -8,6 +8,9 @@
         <result property="useSize" jdbcType="BIGINT" column="use_size"/>
         <result property="shutoff" jdbcType="BOOLEAN" column="shutoff"/>
     </resultMap>
+    <delete id="delete">
+        delete from onlinedisk where user_id=#{userId}
+    </delete>
 
     <select id="findById" resultMap="onLineDiskMap">
         select * from onlinedisk where user_id=#{userId}

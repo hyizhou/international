@@ -141,26 +141,7 @@ public class EditUtil {
         }
     }
 
-    /**
-     * 将多个目录拼接成完整路径
-     * @param dirs 目录
-     * @return 拼接后的路径
-     */
-    public static String join(String... dirs){
-        StringBuilder str = new StringBuilder();
-        if (dirs == null){
-            return null;
-        }
-        int i = 0;
-        if (dirs.length > 0){
-            str.append(dirs[0]);
-            i++;
-        }
-        for (; i < dirs.length; i++) {
-            str.append(File.separatorChar).append(dirs[i]);
-        }
-        return str.toString();
-    }
+
 
 
 }
