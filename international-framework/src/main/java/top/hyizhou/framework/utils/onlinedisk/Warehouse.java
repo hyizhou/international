@@ -1,5 +1,6 @@
 package top.hyizhou.framework.utils.onlinedisk;
 
+import org.springframework.core.io.Resource;
 import top.hyizhou.framework.entity.SimpleFileInfo;
 
 import java.io.InputStream;
@@ -60,5 +61,5 @@ public interface Warehouse {
      * @param path 路径
      * @return 以流的形式返回
      */
-    InputStream getFile(String path);
+    Resource getFile(String path);
 }

@@ -66,6 +66,9 @@
                 `nu_down`=#{nuDown}
             </if>
         </set>
+        <where>
+            `id`=#{id}
+        </where>
     </update>
 
     <select id="findAll" resultMap="sharedMap">
@@ -78,6 +81,10 @@
 
     <select id="findById" resultMap="sharedMap">
         select * from shared where id=#{id}
+    </select>
+
+    <select id="findByPath" resultMap="sharedMap">
+        select * from shared where path=#{path}
     </select>
 
     <delete id="delete" parameterType="java.lang.Integer">

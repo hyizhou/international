@@ -9,6 +9,7 @@ import java.util.Date;
  * @date 2022/1/26 17:21
  */
 public class DateUtil {
+    public static String simpleFormat = "yyyy-MM-dd HH:mm:ss";
     /**
      * 根据当前时间，增加一定的时间
      * @param second 增加的时间，单位为秒
@@ -31,8 +32,12 @@ public class DateUtil {
      * 获取方便阅读的当前时间
      * @return 当前时间格式化后形式
      */
-    public static String currentTimeReadable(){
+    public synchronized static String currentTimeReadable(){
+        return simpleFormatDate(new Date());
+    }
+
+    public synchronized static String simpleFormatDate(Date date){
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        return format.format(new Date());
+        return format.format(date);
     }
 }

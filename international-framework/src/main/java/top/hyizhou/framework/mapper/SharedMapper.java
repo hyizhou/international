@@ -1,6 +1,7 @@
 package top.hyizhou.framework.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import top.hyizhou.framework.pojo.SharedPojo;
 
 import java.util.List;
@@ -31,6 +32,13 @@ public interface SharedMapper {
      * @return 用户分享记录
      */
     SharedPojo findById(Integer id);
+
+    /**
+     * 根据文件路径查找，理论上是唯一的，但也可能数据异常
+     * @param path
+     * @return
+     */
+    SharedPojo findByPath(@Param("path") String path);
 
     /**
      * 添加一条记录
