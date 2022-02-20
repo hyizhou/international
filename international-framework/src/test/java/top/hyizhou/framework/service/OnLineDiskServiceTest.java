@@ -148,7 +148,7 @@ public class OnLineDiskServiceTest {
     public void sharedFile() throws OnLineDiskException {
         System.out.println("分享文件测试开始");
         // 分享一分钟
-        service.sharedFile(testUser, "文件存储测试/cc/aa.txt", 600);
+        service.shareFile(testUser, "文件存储测试/cc/aa.txt", 600);
         System.out.println("分享文件测试结束");
     }
 

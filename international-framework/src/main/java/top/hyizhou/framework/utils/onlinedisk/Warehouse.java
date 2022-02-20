@@ -4,6 +4,7 @@ import org.springframework.core.io.Resource;
 import top.hyizhou.framework.entity.SimpleFileInfo;
 
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * 仓库对象，提供云盘操作仓库的接口
@@ -62,4 +63,11 @@ public interface Warehouse {
      * @return 以流的形式返回
      */
     Resource getFile(String path);
+
+    /**
+     * 获取子文件
+     * @param path 路径
+     * @return 简单文件信息对象列表
+     */
+    List<SimpleFileInfo> ListFilesInfo(String path);
 }
