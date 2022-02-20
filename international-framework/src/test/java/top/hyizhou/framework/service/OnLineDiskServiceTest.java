@@ -160,4 +160,10 @@ public class OnLineDiskServiceTest {
         System.out.println("获取分享文件结束");
     }
 
+    @Test
+    public void getShareDetail() throws OnLineDiskException {
+        System.out.println("获取分享文件详情测试开始");
+        service.getSharedDetail("");
+        System.out.println("获取分享文件详情测试结束");
+    }
 }

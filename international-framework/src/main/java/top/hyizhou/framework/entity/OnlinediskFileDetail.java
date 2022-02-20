@@ -16,6 +16,4 @@ public class OnlinediskFileDetail extends SimpleFileInfo {
     public void setShear(boolean shear) {
         isShear = shear;
     }
-
-
 }

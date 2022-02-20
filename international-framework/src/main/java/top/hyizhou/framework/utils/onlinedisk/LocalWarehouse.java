@@ -106,6 +106,7 @@ public class LocalWarehouse implements Warehouse {
         }
         info.setDirectory(file.isDirectory());
         info.setName(file.getName());
+        info.setLastModified(file.lastModified());
         return info;
     }
 
