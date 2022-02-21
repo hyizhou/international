@@ -9,15 +9,6 @@ public class OnlinediskFileDetail extends SimpleFileInfo {
     /** 是分享的 */
     private boolean isShear;
 
-    public static OnlinediskFileDetail build(SimpleFileInfo info){
-        OnlinediskFileDetail detail = new OnlinediskFileDetail();
-        detail.setDirectory(info.getIsDirectory());
-        detail.setLength(info.getLength());
-        detail.setName(info.getName());
-        detail.setLastModified(info.getLastModified());
-        return detail;
-    }
-
     public boolean isShear() {
         return isShear;
     }
@@ -25,4 +16,6 @@ public class OnlinediskFileDetail extends SimpleFileInfo {
     public void setShear(boolean shear) {
         isShear = shear;
     }
+
+
 }

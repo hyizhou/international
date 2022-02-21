@@ -1,8 +1,11 @@
 package top.hyizhou.framework.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import top.hyizhou.framework.config.property.BaseProperty;
 import top.hyizhou.framework.control.interceptor.AccessLimitInterceptor;
 import top.hyizhou.framework.control.interceptor.LogInterceptor;
 import top.hyizhou.framework.control.interceptor.VerifyInterceptor;
@@ -15,6 +18,8 @@ import top.hyizhou.framework.control.interceptor.VerifyInterceptor;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
     private final VerifyInterceptor verifyInterceptor;
+    @Autowired
+    private BaseProperty property;
 
     public WebConfig(VerifyInterceptor verifyInterceptor) {
         this.verifyInterceptor = verifyInterceptor;
@@ -27,6 +32,13 @@ public class WebConfig implements WebMvcConfigurer {
         // 过量请求拦截器
         registry.addInterceptor(new AccessLimitInterceptor());
         // 验证登录拦截器
-        registry.addInterceptor(verifyInterceptor).excludePathPatterns( "/test/**","/register", "/error**");
+        if (!property.isSkipLogin()) {
+            registry.addInterceptor(verifyInterceptor).excludePathPatterns("/test/**", "/register", "/error**");
+        }
+    }
+
+    @Override
+    public void configurePathMatch(PathMatchConfigurer configurer) {
+        WebMvcConfigurer.super.configurePathMatch(configurer);
     }
 }

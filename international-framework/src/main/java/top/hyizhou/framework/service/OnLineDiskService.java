@@ -9,7 +9,6 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.multipart.MultipartFile;
 import top.hyizhou.framework.config.property.BaseProperty;
 import top.hyizhou.framework.entity.OnlinediskFileDetail;
-import top.hyizhou.framework.entity.SharedFileDetail;
 import top.hyizhou.framework.entity.SimpleFileInfo;
 import top.hyizhou.framework.entity.User;
 import top.hyizhou.framework.except.OnLineDiskException;
@@ -28,7 +27,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.NoSuchFileException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -294,8 +292,9 @@ public class OnLineDiskService {
      * @param sharedPath 分享文件路径，如文件全路径为(D:/warehouse/userHouse/book/aa.txt)，本处应填(userHouse/book/aa.txt)
      * @return 文件详情对象
      */
-    public SharedFileDetail getSharedDetail(String sharedPath) throws OnLineDiskException {
-        SharedFileDetail detail = new SharedFileDetail();
+    public OnlinediskFileDetail getSharedDetail(String sharedPath) throws OnLineDiskException {
+        OnlinediskFileDetail detail = new OnlinediskFileDetail();
+        detail.setShear(isShare(sharedPath));
         SimpleFileInfo fileInfo = warehouse.getFileInfo(sharedPath);
         if (fileInfo == null){
             log.error("获取分享文件详情失败 -- 路径：{}", sharedPath);
@@ -304,39 +303,13 @@ public class OnLineDiskService {
         detail.setDirectory(fileInfo.getIsDirectory());
         detail.setLength(fileInfo.getLength());
         detail.setName(fileInfo.getName());
-        SharedPojo sharedPojo = sharedMapper.findByPath(sharedPath);
-        if (sharedPojo == null){
-            log.error("获取分享文件详情失败 -- 路径[{}]未从数据库shared中查询到结果", sharedPath);
-            throw new OnLineDiskException("请检查路径");
-        }
-        detail.setSharedTime(sharedPojo.getSharedTime().getTime());
-        detail.setDownloadCount(sharedPojo.getNuDown());
         return detail;
-    }
-
-    /**
-     * 若共享路径是目录，则使用此方法获取目录下的文件列表
-     * @param sharedPath 查询路径，其某个节点的父路径应是共享目录，但本方法中不做相关判断
-     * @return 文件列表
-     */
-    public List<OnlinediskFileDetail> getSharedFolderSub(String sharedPath){
-        List<OnlinediskFileDetail> details = new ArrayList<>();
-        List<SimpleFileInfo> fileInfoList = warehouse.ListFilesInfo(sharedPath);
-        if (fileInfoList == null){
-            log.error("查询共享目录文件列表失败 -- 具体失败原因请查看上几行日志");
-        }
-        for (SimpleFileInfo simpleFileInfo : fileInfoList) {
-            OnlinediskFileDetail detail = OnlinediskFileDetail.build(simpleFileInfo);
-            detail.setShear(true);
-            details.add(detail);
-        }
-        return details;
     }
 
     /**
      * 读取目录
      */
-    public List<SimpleFileInfo> listFolder(User user, String path) throws OnLineDiskException {
+    public List<SimpleFileInfo> getFolderSub(User user, String path) throws OnLineDiskException {
         // 判断用户是否存在
         OnLineDisk onLineDisk = onLineDiskMapper.findById(user.getId());
         if (null == onLineDisk){
@@ -365,7 +338,7 @@ public class OnLineDiskService {
      *
      */
     @Transactional(rollbackFor = Exception.class)
-    public void shareFile(User user, String filePath, int sharedTime) throws OnLineDiskException {
+    public void sharedFile(User user, String filePath, int sharedTime) throws OnLineDiskException {
         OnLineDisk onLineDiskData = findOnLineDiskData(user);
         String path = FilesUtil.join(new File(onLineDiskData.getDirName()).getName(), filePath);
         SimpleFileInfo fileInfo = warehouse.getFileInfo(path);
@@ -399,7 +372,6 @@ public class OnLineDiskService {
      * @param sharedPath 文件路径，这个文件路径应是从分享表中读取的路径，指明了用户目录
      * @return 文件
      */
-    @Transactional(rollbackFor = Exception.class)
     public Resource getSharedFile(String sharedPath) throws OnLineDiskException {
         // 判断分享文件是否过期
         SharedPojo shared = sharedMapper.findByPath(sharedPath);
@@ -412,22 +384,7 @@ public class OnLineDiskService {
             log.error("获取分享资源失败 -- 资源路径：{}", sharedPath);
             throw new OnLineDiskException("文件路径错误");
         }
-        shared.setNuDown(shared.getNuDown()+1);
-        sharedMapper.update(shared);
         return resource;
-    }
-
-    /**
-     * 取消分享，需要先获取到要取消文件所在shared表的id
-     * @param sharedId 分享id
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public void CancelSharing(int sharedId) throws OnLineDiskException {
-        if (sharedMapper.delete(sharedId) != 1) {
-            // 删除条数不为0，表中数据不存在
-            log.error("取消文件分享失败 -- [{}]共享id不存在", sharedId);
-            throw new OnLineDiskException("文件不存在");
-        }
     }
 
     /**

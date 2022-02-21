@@ -14,8 +14,6 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 存储在本地硬盘上的仓库
@@ -97,22 +95,17 @@ public class LocalWarehouse implements Warehouse {
 
     @Override
     public SimpleFileInfo getFileInfo(String path) {
-        File file = new File(FilesUtil.join(root, path));
-        return getFileInfo(file);
-    }
-
-    private SimpleFileInfo getFileInfo(File file){
         SimpleFileInfo info = new SimpleFileInfo();
+        File file = new File(FilesUtil.join(root, path));
         try {
             info.setLength(FilesUtil.size(file));
         } catch (IOException e) {
-            logger.error("仓库获取文件/目录信息失败 -- path={}", file.getAbsolutePath());
+            logger.error("仓库获取文件/目录信息失败 -- path={}", path);
             logger.error("", e);
             return null;
         }
         info.setDirectory(file.isDirectory());
         info.setName(file.getName());
-        info.setLastModified(file.lastModified());
         return info;
     }
 
@@ -125,24 +118,5 @@ public class LocalWarehouse implements Warehouse {
             return null;
         }
         return resource;
-    }
-
-    @Override
-    public List<SimpleFileInfo> ListFilesInfo(String path) {
-        File file = new File(path);
-        if (!file.exists() || !file.isDirectory()){
-            logger.error("仓库读取目录列表失败 -- 目录不存在或路径不是目录");
-            return null;
-        }
-        List<SimpleFileInfo> infos = new ArrayList<>();
-        File[] files = file.listFiles();
-        if (files == null){
-            logger.error("仓库读取目录列表失败 -- 读取时发生io错误");
-            return null;
-        }
-        for (File subFile : files) {
-            infos.add(getFileInfo(subFile));
-        }
-        return infos;
     }
 }

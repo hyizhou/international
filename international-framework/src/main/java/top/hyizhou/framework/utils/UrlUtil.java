@@ -187,8 +187,5 @@ public class UrlUtil {
         return encode(str, StandardCharsets.UTF_8.name());
     }
 
-    public static void main(String[] args) {
-        System.out.println(StandardCharsets.UTF_8.name());
-    }
 
 }

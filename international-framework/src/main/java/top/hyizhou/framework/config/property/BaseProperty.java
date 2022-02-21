@@ -12,9 +12,19 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties("international")
 public class BaseProperty {
     private final OnlineDiskProperty onlineDisk = new OnlineDiskProperty();
+    /** 配置是否跳过登录 */
+    private boolean skipLogin;
 
     public OnlineDiskProperty getOnlineDisk() {
         return onlineDisk;
+    }
+
+    public boolean isSkipLogin() {
+        return skipLogin;
+    }
+
+    public void setSkipLogin(boolean skipLogin) {
+        this.skipLogin = skipLogin;
     }
 
     /**

@@ -129,7 +129,7 @@ public class OnLineDiskServiceTest {
     @Test
     public void listFolder() throws OnLineDiskException {
         System.out.println("获取目录内文件列表测试开始");
-        List<SimpleFileInfo> simpleFileInfos = service.listFolder(testUser, "文件存储测试/bb");
+        List<SimpleFileInfo> simpleFileInfos = service.getFolderSub(testUser, "文件存储测试/bb");
         for (SimpleFileInfo simpleFileInfo : simpleFileInfos) {
             System.out.println(simpleFileInfo.getName());
         }
@@ -148,7 +148,7 @@ public class OnLineDiskServiceTest {
     public void sharedFile() throws OnLineDiskException {
         System.out.println("分享文件测试开始");
         // 分享一分钟
-        service.shareFile(testUser, "文件存储测试/cc/aa.txt", 600);
+        service.sharedFile(testUser, "文件存储测试/cc/aa.txt", 600);
         System.out.println("分享文件测试结束");
     }
 
@@ -160,10 +160,4 @@ public class OnLineDiskServiceTest {
         System.out.println("获取分享文件结束");
     }
 
-    @Test
-    public void getShareDetail() throws OnLineDiskException {
-        System.out.println("获取分享文件详情测试开始");
-        service.getSharedDetail("");
-        System.out.println("获取分享文件详情测试结束");
-    }
 }

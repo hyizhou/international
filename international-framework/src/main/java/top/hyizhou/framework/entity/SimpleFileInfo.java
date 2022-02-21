@@ -16,8 +16,6 @@ public class SimpleFileInfo {
     private boolean isDirectory;
     /** 文件大小 */
     private Long length;
-    /** 文件最后修改时间，使用字符串存储为方便前端直接显示 */
-    private long lastModified;
     public SimpleFileInfo(){}
 
     public SimpleFileInfo(String name, boolean isDirectory) {
@@ -34,7 +32,6 @@ public class SimpleFileInfo {
         for (File file : files) {
             SimpleFileInfo simpleFileInfo = new SimpleFileInfo(file.getName(), file.isDirectory());
             simpleFileInfo.setLength(file.length());
-            simpleFileInfo.setLastModified(file.lastModified());
             req.add(simpleFileInfo);
         }
         return req;
@@ -64,11 +61,4 @@ public class SimpleFileInfo {
         this.length = length;
     }
 
-    public long getLastModified() {
-        return lastModified;
-    }
-
-    public void setLastModified(long lastModified) {
-        this.lastModified = lastModified;
-    }
 }
