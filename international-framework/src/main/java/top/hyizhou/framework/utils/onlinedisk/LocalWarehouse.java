@@ -129,15 +129,16 @@ public class LocalWarehouse implements Warehouse {
 
     @Override
     public List<SimpleFileInfo> ListFilesInfo(String path) {
+        path = FilesUtil.join(root, path);
         File file = new File(path);
         if (!file.exists() || !file.isDirectory()){
-            logger.error("仓库读取目录列表失败 -- 目录不存在或路径不是目录");
+            logger.error("仓库读取目录列表失败 -- 目录不存在或路径不是目录 -- path=[{}]",path);
             return null;
         }
         List<SimpleFileInfo> infos = new ArrayList<>();
         File[] files = file.listFiles();
         if (files == null){
-            logger.error("仓库读取目录列表失败 -- 读取时发生io错误");
+            logger.error("仓库读取目录列表失败 -- 读取时发生io错误 -- path=[{}]", path);
             return null;
         }
         for (File subFile : files) {

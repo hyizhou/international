@@ -17,6 +17,8 @@ import top.hyizhou.framework.service.OnLineDiskService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.List;
 
 /**
@@ -41,7 +43,12 @@ public class OnlineDiskControl {
      */
     @GetMapping("disk/folder/**")
     public Resp<List> getFolderDetail(HttpSession session, HttpServletRequest request){
-        String uri = request.getRequestURI();
+        String uri = null;
+        try {
+            uri = URLDecoder.decode(request.getRequestURI(), "utf8");
+        } catch (UnsupportedEncodingException e) {
+            uri = URLDecoder.decode(request.getRequestURI());
+        }
         System.out.println(uri);
         String path = matcher.extractPathWithinPattern("disk/folder/**", uri);
         System.out.println(path);

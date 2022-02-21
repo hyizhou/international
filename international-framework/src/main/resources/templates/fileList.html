@@ -6,7 +6,7 @@
     <script type="text/javascript" src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.5.1/jquery.js"></script>
     <script type="text/javascript">
         let golbalUrl = "http://localhost/disk/folder/";
-        let localPath = "/";
+        let localPath = "";
         /**
          * 传入json对象，更新到页面
          * @param date json对象
@@ -18,7 +18,7 @@
                 let fileInfo = date.body[i];
                 let a = "<p></p>";
                 if (fileInfo.isDirectory) {
-                    a = $(a).text(fileInfo.name).attr({"class":"folder_p"});
+                    a = $(a).text(fileInfo.name).attr({"class":"folder_p", "href":localPath+fileInfo.name+"/"});
                     console.log(a);
                     $("#div-file-list").append(a);
                 }else {
@@ -30,13 +30,11 @@
 
         /**
          * 异步get请求获取目录子文件列表
-         * @param path 相对路径
+         * @param path 相对路径，例：aa/bb/c，最前面不要带/
          */
-        function getFolderList(path){
+        function getFolderList(path) {
+            let url = golbalUrl + path;
             console.log("url = "+path);
-            console.log(typeof path);
-            // url为undefined或为null
-            let url = golbalUrl + "/" + path;
             $.get(url, function (data, status){
                 console.log(data);
                 console.log(typeof(data));
@@ -47,13 +45,16 @@
         function nextFolder(event){
             console.log(event);
             console.log(event.currentTarget);
-            let subFolder = $(event.currentTarget).text();
-            localPath = localPath + "/" + subFolder;
-            alert("被点击了"+ localPath);
+            let subFolder = $(event.currentTarget).attr("href");
+            // let name = $(event.currentTarget).text();
+            // 刷新页面
+            getFolderList(subFolder);
+            // 刷新成功后，更新localPath
+            localPath = subFolder;
         }
 
         $(document).ready(function (){
-            $("button").click(function (){getFolderList("/")});
+            $("button").click(function (){getFolderList(localPath)});
             $("#div-file-list").on("click",".folder_p", nextFolder);
         });
     </script>

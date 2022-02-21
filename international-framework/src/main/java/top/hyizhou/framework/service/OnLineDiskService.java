@@ -319,11 +319,12 @@ public class OnLineDiskService {
      * @param sharedPath 查询路径，其某个节点的父路径应是共享目录，但本方法中不做相关判断
      * @return 文件列表
      */
-    public List<OnlinediskFileDetail> getSharedFolderSub(String sharedPath){
+    public List<OnlinediskFileDetail> getSharedFolderSub(String sharedPath) throws OnLineDiskException {
         List<OnlinediskFileDetail> details = new ArrayList<>();
         List<SimpleFileInfo> fileInfoList = warehouse.ListFilesInfo(sharedPath);
         if (fileInfoList == null){
             log.error("查询共享目录文件列表失败 -- 具体失败原因请查看上几行日志");
+            throw new OnLineDiskException("请检查路径");
         }
         for (SimpleFileInfo simpleFileInfo : fileInfoList) {
             OnlinediskFileDetail detail = OnlinediskFileDetail.build(simpleFileInfo);
@@ -343,18 +344,12 @@ public class OnLineDiskService {
             log.error("用户未开通云盘：{}", user);
             throw new OnLineDiskException("用户未开通云盘");
         }
-        path = onLineDisk.getDirName()+ FilesUtil.separator + path;
-        File dir = new File(path);
-        // 判断是否存在
-        if (!dir.exists()) {
-            log.error("目录读取 -- 读取的目录不存在：path={}", path);
+        List<SimpleFileInfo> simpleFileInfos = warehouse.ListFilesInfo(FilesUtil.join(new File(onLineDisk.getDirName()).getName(), path));
+        if (simpleFileInfos == null){
+            log.error("云盘目录读取失败 -- 请看上面日志查找原因");
             throw new OnLineDiskException("读取目录不存在");
         }
-        if (!dir.isDirectory()){
-            log.error("目录读取 -- 读取路径并不是目录：path={}", path);
-            throw new OnLineDiskException("读取目录不存在");
-        }
-        return SimpleFileInfo.createSimpleFileInfo(dir.listFiles());
+        return simpleFileInfos;
     }
 
     /**
