@@ -5,10 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 
 /**
@@ -92,6 +89,20 @@ public class FilesUtil {
 
     public static long size(String path) throws IOException{
         return size(new File(path));
+    }
+
+    /**
+     * 文件/目录移动，就是将旧文件移动到新文件位置，若新位置存在文件将被覆盖
+     * TODO 目录移动部分待完成
+     * @param oldFile 旧文件
+     * @param newFile 新文件
+     */
+    public static void vm(File oldFile, File newFile){
+        try {
+            Files.move(oldFile.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**

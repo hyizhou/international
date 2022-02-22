@@ -34,7 +34,7 @@ public class OnLineDiskServiceTest {
     @BeforeEach
     public void getTestUser(){
         if (testUser == null) {
-            User user = accountService.findUser(21, null);
+            User user = accountService.findUser(20, null);
             assert user != null : "无用户";
             this.testUser = user;
         }
@@ -52,7 +52,7 @@ public class OnLineDiskServiceTest {
     }
 
     @Test
-    public void delete(){
+    public void delete() throws OnLineDiskException {
         System.out.println("删除云盘测试开始");
         boolean isOk = service.delete(testUser);
         System.out.println("删除成功吗？   "+isOk);
@@ -68,7 +68,7 @@ public class OnLineDiskServiceTest {
     }
 
     @Test
-    public void clear(){
+    public void clear() throws OnLineDiskException {
         System.out.println("清理方法测试开始");
         boolean clear = service.clear(testUser);
         System.out.println("清理成功了吗？   "+clear);
@@ -86,7 +86,7 @@ public class OnLineDiskServiceTest {
             FileInputStream inputStream = new FileInputStream(file);
             MultipartFile multipartFile = new MockMultipartFile(file.getName(), inputStream);
             try {
-                service.saveFile(testUser, multipartFile, "/文件存储测试/bb");
+                service.saveFile(testUser, multipartFile, "/写入文件");
             } catch (OnLineDiskException e) {
                 e.printStackTrace();
                 return;
@@ -139,8 +139,7 @@ public class OnLineDiskServiceTest {
     @Test
     public void mkdirOrFile() throws OnLineDiskException {
         System.out.println("创建目录或文件开始");
-        service.mkdirOrFile(testUser, "文件存储测试/cc", true);
-        service.mkdirOrFile(testUser, "文件存储测试/cc/aa.txt", false);
+        service.mkdirOrFile(testUser, "写入文件/cc", true);
         System.out.println("创建目录或文件结束");
     }
 

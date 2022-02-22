@@ -69,5 +69,5 @@ public interface Warehouse {
      * @param path 路径
      * @return 简单文件信息对象列表
      */
-    List<SimpleFileInfo> ListFilesInfo(String path);
+    List<SimpleFileInfo> listFilesInfo(String path);
 }

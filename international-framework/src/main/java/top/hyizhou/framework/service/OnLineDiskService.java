@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.multipart.MultipartFile;
 import top.hyizhou.framework.config.property.BaseProperty;
 import top.hyizhou.framework.entity.OnlinediskFileDetail;
@@ -27,7 +26,6 @@ import top.hyizhou.framework.utils.onlinedisk.Warehouse;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.NoSuchFileException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -57,16 +55,18 @@ public class OnLineDiskService {
     private final OnLineDiskMapper onLineDiskMapper;
     /** 实体目录路径 */
     private final String warehousePath;
-    /** 仓库类型 */
-    private final String storageType;
     private final Warehouse warehouse;
 
     public OnLineDiskService(SharedMapper sharedMapper, OnLineDiskMapper onLineDiskMapper, BaseProperty property) {
         this.sharedMapper = sharedMapper;
         this.onLineDiskMapper = onLineDiskMapper;
         this.warehousePath = property.getOnlineDisk().getWarehouse();
-        this.storageType = property.getOnlineDisk().getStorageType();
-        this.warehouse = new LocalWarehouse(warehousePath);
+        String storageType = property.getOnlineDisk().getStorageType();
+        if (DefaultConf.localType.equals(storageType)) {
+            this.warehouse = new LocalWarehouse(warehousePath);
+        }else {
+            this.warehouse = null;
+        }
     }
 
     /**
@@ -95,16 +95,15 @@ public class OnLineDiskService {
             return false;
         }
         // 新建用户云盘目录
-        String userDir = warehousePath + FilesUtil.separator + accountName;
-        if (!new File(userDir).mkdirs()) {
-            log.error("用户创建云盘初始化失败--创建目录失败");
+        // 在仓库下创建以账户名为名的目录，作为用户仓库
+        if (!warehouse.mkdir(accountName)) {
+            log.error("用户云盘初始化失败 -- 创建目录失败");
             return false;
         }
-        log.info("云盘初始化 -- 创建仓库：{}",userDir);
         // 信息记入表
         OnLineDisk onLineDisk = new OnLineDisk();
         onLineDisk.setUserId(userId);
-        onLineDisk.setDirName(userDir);
+        onLineDisk.setDirName(accountName);
         onLineDisk.setAllSize(DefaultConf.allSize);
         onLineDisk.setUseSize(0L);
         onLineDisk.setShutoff(false);
@@ -116,11 +115,12 @@ public class OnLineDiskService {
     /**
      * 删除云盘，将表记录添加删除标志，可恢复
      */
-    public boolean delete(User user){
+    public boolean delete(User user) throws OnLineDiskException {
         Integer userId = user.getId();
         // 若不存在记录则不需要删除
         if (onLineDiskMapper.findById(userId) == null){
-            return true;
+            log.error("用户[id = {}]删除云盘失败 -- 未发现创建云盘", user.getId());
+            throw new OnLineDiskException("未创建云盘，删除失败");
         }
         // 将表中信息标记为删除
         OnLineDisk onLineDisk = new OnLineDisk();
@@ -156,29 +156,23 @@ public class OnLineDiskService {
      * 清除，将不可恢复
      */
     @Transactional(rollbackFor = Exception.class)
-    public boolean clear(User user){
+    public boolean clear(User user) throws OnLineDiskException {
         if (delete(user)) {
             // 删除用户云盘目录
             OnLineDisk onLineDisk = onLineDiskMapper.findById(user.getId());
             String dir = onLineDisk.getDirName();
-            log.info("清除用户云盘目录--{}", dir);
+            log.info("清除用户[id = {}]云盘目录--{}",user.getId(), dir);
             // 删除目录
-            try {
-                FilesUtil.rm(dir);
-            }catch (NoSuchFileException e) {
-                log.info("清除用户云盘 -- 用户目录已不存在");
-            }catch (IOException e) {
-                log.error("清除用户云盘异常 -- 删除目录失败");
-                log.error("", e);
-                // 删除目录失败则回滚
-                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return false;
+            if (!warehouse.delete(dir)) {
+                log.error("清除用户[id = {}]云盘失败", user.getId());
+                throw new OnLineDiskException("系统异常");
             }
             // 最后彻底删除记录
             onLineDiskMapper.delete(user.getId());
             return true;
         }
         // 表示数据库中存在用户云盘记录，但是标记为删除失败
+        log.error("清除用户[id = {}]云盘目录失败 -- 数据表设定删除字段设置为true失败", user.getId());
         return false;
     }
 
@@ -199,28 +193,24 @@ public class OnLineDiskService {
             log.error("云盘文件存储失败 -- 用户未开通云盘");
             throw new OnLineDiskException("未开通云盘");
         }
-        // 拼接存储路径
-        path = FilesUtil.join(userDisk.getDirName(), path);
-        long freeSize = userDisk.getAllSize() - userDisk.getUseSize();
         // 获取文件判断文件是否过大
+        long freeSize = userDisk.getAllSize() - userDisk.getUseSize();
         if (multipartFile.getSize() > freeSize) {
             log.error("云盘文件存储失败 -- 空间不足，文件大小：[{}]，剩余空间:[{}]", multipartFile.getSize(), freeSize);
             throw new OnLineDiskException("文件过大");
         }
         // 将文件写入仓库
+        path = FilesUtil.join(new File(userDisk.getDirName()).getName(), path, multipartFile.getName());
+        log.info("path={}", path);
         try {
-            File targetFile = new File(path);
-            if (!targetFile.exists()) {
-                if (!targetFile.mkdirs()) {
-                    log.error("云盘文件存储失败 -- 文件目录创建异常：{}", targetFile.getAbsolutePath());
-                    return false;
-                }
+            if (!warehouse.save(path, multipartFile.getInputStream())) {
+                log.error("云盘文件存储失败 -- 具体原因查看上面日志");
+                throw new OnLineDiskException("路径异常");
             }
-            multipartFile.transferTo(new File(FilesUtil.join(path, multipartFile.getName())));
         } catch (IOException e) {
-            log.error("云盘文件存储失败 -- 文件写入异常");
+            log.error("云盘文件存储失败 -- 创建流异常");
             log.error("", e);
-            return false;
+            throw new OnLineDiskException("系统错误");
         }
         // 增加已使用空间
         userDisk.setUseSize(userDisk.getUseSize() + multipartFile.getSize());
@@ -321,7 +311,7 @@ public class OnLineDiskService {
      */
     public List<OnlinediskFileDetail> getSharedFolderSub(String sharedPath) throws OnLineDiskException {
         List<OnlinediskFileDetail> details = new ArrayList<>();
-        List<SimpleFileInfo> fileInfoList = warehouse.ListFilesInfo(sharedPath);
+        List<SimpleFileInfo> fileInfoList = warehouse.listFilesInfo(sharedPath);
         if (fileInfoList == null){
             log.error("查询共享目录文件列表失败 -- 具体失败原因请查看上几行日志");
             throw new OnLineDiskException("请检查路径");
@@ -344,7 +334,7 @@ public class OnLineDiskService {
             log.error("用户未开通云盘：{}", user);
             throw new OnLineDiskException("用户未开通云盘");
         }
-        List<SimpleFileInfo> simpleFileInfos = warehouse.ListFilesInfo(FilesUtil.join(new File(onLineDisk.getDirName()).getName(), path));
+        List<SimpleFileInfo> simpleFileInfos = warehouse.listFilesInfo(FilesUtil.join(new File(onLineDisk.getDirName()).getName(), path));
         if (simpleFileInfos == null){
             log.error("云盘目录读取失败 -- 请看上面日志查找原因");
             throw new OnLineDiskException("读取目录不存在");
@@ -482,5 +472,11 @@ public class OnLineDiskService {
     private static class DefaultConf{
         /** 新建的云盘默认分配1G空间 */
         public static long allSize = 1073741824;
+
+        /** 本地仓库类型 */
+        public static String localType = "local";
+
+        /** 其他仓库类型 */
+        public static String otherType = "other";
     }
 }

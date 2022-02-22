@@ -7,9 +7,7 @@ import org.springframework.core.io.Resource;
 import top.hyizhou.framework.entity.SimpleFileInfo;
 import top.hyizhou.framework.utils.FilesUtil;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -21,6 +19,7 @@ import java.util.List;
  * 存储在本地硬盘上的仓库
  * 仓库结构：云盘主仓库 -- 用户仓库 -- 具体路径
  * 如：D:/warehouse/userHouse/book/aa.txt；warehouse为主仓库，userHouse为用户仓库
+ * 本类中方法所需参数path皆指相对主仓库的路径，即例子中"/userHouse/book/..."部分
  * @author hyizhou
  * @date 2022/2/17 15:48
  */
@@ -49,6 +48,7 @@ public class LocalWarehouse implements Warehouse {
     @Override
     public boolean mkdir(String path) {
         path = FilesUtil.join(root, path);
+        logger.info("仓库创建目录 -- path=[{}]", path);
         File file = new File(path);
         if (file.exists()) {
             logger.error("仓库创建目录失败 -- 目录已存在：{}", path);
@@ -69,7 +69,7 @@ public class LocalWarehouse implements Warehouse {
         try {
             Files.createFile(FileSystems.getDefault().getPath(path));
         } catch (FileAlreadyExistsException e) {
-            logger.error("仓库保存文件失败 -- 创建文件时文件已经存在");
+            logger.error("仓库保存文件失败 -- 文件已经存在");
             return false;
         } catch (IOException e){
             logger.error("仓库保存文件失败 -- 发生IO错误，或父目录不存在");
@@ -80,9 +80,25 @@ public class LocalWarehouse implements Warehouse {
             logger.info("仓库保存文件提示 -- 输入流为null，因此只创建了文件，而未写入任何数据");
             return true;
         }
-        // TODO 存在输入流
-        logger.info("仓库保存文件提示 -- 输入流处理部分暂时没写完");
-        return false;
+        // 存在输入流情况
+        try(BufferedInputStream bufferIn = new BufferedInputStream(in);
+            BufferedOutputStream bufferOut = new BufferedOutputStream(new FileOutputStream(file))
+        ) {
+            byte[] buffer = new byte[1000];
+            int len;
+            while ((len = bufferIn.read(buffer)) != -1) {
+                bufferOut.write(buffer, 0, len);
+            }
+            bufferOut.flush();
+            in.close();
+            logger.info("仓库保存文件成功 -- path={}", file.getAbsolutePath());
+            return true;
+        } catch (IOException e) {
+            logger.error("仓库保存文件失败 -- 流在保存过程中发生io错误");
+            logger.error("", e);
+            return false;
+        }
+
     }
 
     @Override
@@ -128,7 +144,7 @@ public class LocalWarehouse implements Warehouse {
     }
 
     @Override
-    public List<SimpleFileInfo> ListFilesInfo(String path) {
+    public List<SimpleFileInfo> listFilesInfo(String path) {
         path = FilesUtil.join(root, path);
         File file = new File(path);
         if (!file.exists() || !file.isDirectory()){
