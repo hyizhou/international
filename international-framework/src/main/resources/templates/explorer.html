@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>资源管理器</title>
+    <script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.5.1/jquery.js"
+            type="text/javascript"></script>
+    <script type="text/javascript">
+        let currentUri = window.location.pathname;
+
+        /**
+         * 通过json对象，更新文件显示标签显示文件信息
+         * @param jsonObj 存储目录信息的json对象
+         */
+        function updateDivFileList(jsonObj) {
+            let divFileList = $("#div-file-list");
+            divFileList.empty();
+            let fileList = jsonObj.body;
+            for (let i = 0; i < fileList.length; i++) {
+                let fileInfo = fileList[i];
+                addOne(fileInfo);
+            }
+        }
+
+        function formatDate(time) {
+            let date = new Date(time);
+            let year = date.getFullYear(), month = date.getMonth() + 1, day = date.getDate(), hour = date.getHours(),
+                min = date.getMinutes(), sec = date.getSeconds();
+            return year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
+        }
+
+        function addOne(fileInfo) {
+            let divFileList = $("#div-file-list");
+            let name = fileInfo.name;
+            let classType;
+            if (fileInfo.isDirectory){
+                classType = "folder_p";
+            }else{
+                classType = "file_p";
+            }
+            let oneLine = $("<div></div>").css({"overflow": "hidden"}).attr({"href": currentUri + name + "/", "class": classType});
+            let left = $("<span></span>").css({"float":"left"}).append($("<P></P>").text(name));
+            let right = $("<span></span>").css({"float":"right"}).append($("<P></P>").text(formatDate(fileInfo.lastModified)));
+            oneLine.append(left, right);
+            divFileList.append(oneLine);
+        }
+
+        function doGet() {
+            let url = "/json" + window.location.pathname;
+            console.log("get异步请求url：" + url);
+            $.get(url, function (data, status) {
+                updateDivFileList(data);
+            })
+        }
+
+
+        $(function () {
+            doGet();
+            $("#div-file-list").on("click", ".folder_p", function (event) {
+                window.location.href = $(event.currentTarget).attr("href");
+            })
+        })
+    </script>
+</head>
+<body>
+<div id="header" style="overflow: hidden; height: 35px">
+    <a href="/">主页</a>
+    <a href="#" style="float: right">登出</a>
+</div>
+<div id="div-folder-path"></div>
+<div id="div-file-list"></div>
+</body>
+</html>

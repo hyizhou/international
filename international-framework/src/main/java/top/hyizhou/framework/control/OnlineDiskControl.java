@@ -41,7 +41,7 @@ public class OnlineDiskControl {
     /**
      * TODO 用来给前端测试数据的
      */
-    @GetMapping("disk/folder/**")
+    @GetMapping("json/disk/folder/**")
     public Resp<List> getFolderDetail(HttpSession session, HttpServletRequest request){
         String uri = null;
         try {
@@ -50,7 +50,7 @@ public class OnlineDiskControl {
             uri = URLDecoder.decode(request.getRequestURI());
         }
         System.out.println(uri);
-        String path = matcher.extractPathWithinPattern("disk/folder/**", uri);
+        String path = matcher.extractPathWithinPattern("json/disk/folder/**", uri);
         System.out.println(path);
         System.out.println("session的id = "+session.getId());
         User user = accountService.findUser(21, null);

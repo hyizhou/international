@@ -50,4 +50,7 @@ public class ViewControl {
         return "login/register";
     }
 
+    @GetMapping("disk/folder/**")
+    public String getFolderSub(){return "explorer";}
+
 }
