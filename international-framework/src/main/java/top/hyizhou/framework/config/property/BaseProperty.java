@@ -38,7 +38,7 @@ public class BaseProperty {
         /**
          * 存储类型，有可能存在文件服务器也可能在本地硬盘
          */
-        private String storageType;
+        private String storageType = "local";
 
         public String getWarehouse() {
             return warehouse;

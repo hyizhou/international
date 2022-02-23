@@ -1,4 +1,4 @@
-package top.hyizhou.framework.pojo;
+package top.hyizhou.framework.domain;
 
 /**
  * onlinedisk表对应的实体类

@@ -1,4 +1,4 @@
-package top.hyizhou.framework.pojo;
+package top.hyizhou.framework.domain;
 
 import java.util.Date;
 

@@ -3,7 +3,7 @@ package top.hyizhou.framework.mapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import top.hyizhou.framework.pojo.OnLineDisk;
+import top.hyizhou.framework.domain.OnLineDisk;
 
 /**
  * @author hyizhou

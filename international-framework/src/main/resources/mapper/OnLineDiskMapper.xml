@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="top.hyizhou.framework.mapper.OnLineDiskMapper">
-    <resultMap id="onLineDiskMap" type="top.hyizhou.framework.pojo.OnLineDisk">
+    <resultMap id="onLineDiskMap" type="top.hyizhou.framework.domain.OnLineDisk">
         <result property="userId" jdbcType="INTEGER" column="user_id"/>
         <result property="dirName" jdbcType="VARCHAR" column="dir_name"/>
         <result property="allSize" jdbcType="BIGINT" column="all_size"/>

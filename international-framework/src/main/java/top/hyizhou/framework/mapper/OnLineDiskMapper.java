@@ -2,7 +2,7 @@ package top.hyizhou.framework.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import top.hyizhou.framework.pojo.OnLineDisk;
+import top.hyizhou.framework.domain.OnLineDisk;
 
 import java.util.List;
 

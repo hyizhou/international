@@ -8,10 +8,7 @@ import top.hyizhou.framework.entity.SimpleFileInfo;
 import top.hyizhou.framework.utils.FilesUtil;
 
 import java.io.*;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +33,7 @@ public class LocalWarehouse implements Warehouse {
     public boolean delete(String path) {
         path = FilesUtil.join(root, path);
         try {
-            FilesUtil.rm(path, logger.isDebugEnabled());
+            FilesUtil.rm(new File(path), logger.isDebugEnabled());
         } catch (IOException e) {
             logger.error("仓库删除操作执行失败 -- path={}", path);
             logger.error("", e);
@@ -103,12 +100,28 @@ public class LocalWarehouse implements Warehouse {
 
     @Override
     public boolean rename(String path, String newName) {
-        return false;
+        path = FilesUtil.join(root, path);
+        try {
+            FilesUtil.mv(new File(path), Paths.get(path).resolveSibling(newName).toFile());
+        } catch (IOException e) {
+            logger.error("仓库重命名失败");
+            logger.error("", e);
+            return false;
+        }
+        return true;
     }
 
     @Override
     public boolean move(String path, String newPath) {
-        return false;
+        path = FilesUtil.join(root, path);
+        try {
+            FilesUtil.mv(new File(path), Paths.get(newPath).toFile());
+        } catch (IOException e) {
+            logger.error("仓库移动失败");
+            logger.error("", e);
+            return false;
+        }
+        return true;
     }
 
     @Override

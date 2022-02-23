@@ -20,6 +20,8 @@ public class FilesUtil {
     public static String winSeparator = "\\";
     /**
      * 递归删除文件或目录
+     * @param file 删除文件对象
+     * @param log 是否将删除文件记录在log中
      */
     public static void rm(File file, boolean log) throws IOException {
         Path path = file.toPath();
@@ -27,20 +29,17 @@ public class FilesUtil {
     }
 
     /**
-     * 递归删除目录或文件
-     * @param file 文件路径
-     * @throws IOException 删除失败异常
+     * 删除文件或目录
+     * @param file 文件对象
+     * @throws IOException io错误
      */
-    public static void rm(String file, boolean log) throws IOException {
-        rm(new File(file), log);
-    }
-
-    public static void rm(String file) throws IOException {
+    public static void rm(File file) throws IOException {
         rm(file, false);
     }
 
     /**
      * 将多个目录拼接成完整路径
+     * top:使用path可以不同这么麻烦
      * @param dirs 目录
      * @return 拼接后的路径
      */
@@ -87,23 +86,34 @@ public class FilesUtil {
         return visitor.getSize();
     }
 
-    public static long size(String path) throws IOException{
-        return size(new File(path));
-    }
-
     /**
-     * 文件/目录移动，就是将旧文件移动到新文件位置，若新位置存在文件将被覆盖
-     * TODO 目录移动部分待完成
+     * 文件/目录移动(或重命名)，将原文件或目录移动到新位置，若新位置存在文件或空目录将被覆盖。
+     * 若是移动目录时，目标目录已经存在且不为空，则无法完成
      * @param oldFile 旧文件
      * @param newFile 新文件
      */
-    public static void vm(File oldFile, File newFile){
-        try {
-            Files.move(oldFile.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public static void mv(File oldFile, File newFile) throws IOException {
+        Files.move(oldFile.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
+
+    /**
+     * 复制文件/目录到指定位置，保留源文件属性，如创建日期
+     * @param from 源文件/目录
+     * @param target 目标文件/目录
+     */
+    public static void cp(File from, File target) throws IOException {
+        // 目标父目录
+        File targetParentFile = target.getParentFile();
+        // 目标不是根目录，且父目录不存在，则进行创建
+        if (targetParentFile != null && !targetParentFile.exists()) {
+            if (!targetParentFile.mkdirs()) {
+                throw new IOException("创建目标父目录失败  path："+targetParentFile.getAbsolutePath());
+            }
+        }
+        Files.walkFileTree(from.toPath(), new CopyFolderVisitor(from.toPath(), target.toPath()));
+    }
+
+
 
     /**
      * 用于递归删除目录
@@ -156,9 +166,32 @@ public class FilesUtil {
         }
     }
 
-    public static void main(String[] args) throws IOException {
-        String path = "D:\\文件测试文件夹";
-        System.out.println(size(new File(path)));
+    /**
+     * 复制文件树，将覆盖目标目录同名文件，复制后的文件目录保持原属性，如创建日期与原文件一致（修改日期可能变了）
+     */
+    private static class CopyFolderVisitor extends SimpleFileVisitor<Path>{
+        private final Path fromPath;
+        private final Path toPath;
+
+        public CopyFolderVisitor(Path fromPath, Path toPath) {
+            this.fromPath = fromPath;
+            this.toPath = toPath;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            Files.copy(file, toPath.resolve(fromPath.relativize(file)), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+            Path targetPath = toPath.resolve(fromPath.relativize(dir));
+            if (!Files.exists(targetPath)){
+                Files.copy(dir, targetPath, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+            }
+            return FileVisitResult.CONTINUE;
+        }
     }
 
 }

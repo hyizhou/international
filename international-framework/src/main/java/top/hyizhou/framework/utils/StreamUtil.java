@@ -1,8 +1,6 @@
 package top.hyizhou.framework.utils;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -151,4 +149,26 @@ public class StreamUtil {
     public static int write(OutputStream outputStream, byte[] data) throws IOException {
         return StreamUtil.write(outputStream, data, data == null ? 0 : data.length);
     }
+
+    /**
+     * 将输入流内容复制到输出流。方法内部不会对流执行关闭，记得在外部将输入输出流进行关闭
+     * @param in 输入流
+     * @param out 输出流
+     * @return 复制文件大小，单位byte
+     * @throws IOException 读取或写入时发生IO错误
+     */
+    public static long copy(InputStream in, OutputStream out) throws IOException {
+        BufferedInputStream bufferedInputStream = new BufferedInputStream(in);
+        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(out);
+        long len = 0L;
+        byte[] buf = new byte[1024];
+        int n;
+        while ((n = bufferedInputStream.read(buf)) > 0){
+            bufferedOutputStream.write(buf, 0, n);
+            len += n;
+        }
+        bufferedOutputStream.flush();
+        return len;
+    }
+
 }
