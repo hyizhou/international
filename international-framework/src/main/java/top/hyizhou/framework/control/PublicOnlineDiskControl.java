@@ -139,6 +139,17 @@ public class PublicOnlineDiskControl {
         }
     }
 
+    @PutMapping("/update/**")
+    public Resp<?> rename(String oldName, String newName, HttpServletRequest req){
+        String path = extractPath("/api/public/update/**", req.getRequestURI());
+        try {
+            service.rename(publicUser, Paths.get(path, oldName).toString(), newName);
+            return new Resp<>(RespCode.OK, null, null);
+        } catch (OnLineDiskException e) {
+            return new Resp<>(RespCode.ERROR, e.getMessage(), null);
+        }
+    }
+
     /**
      * 获得uri上的资源路径
      * @param pattern 如何获取路径的表达式

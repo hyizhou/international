@@ -245,6 +245,21 @@ public class OnLineDiskService {
     }
 
     /**
+     * 重命名文件或目录
+     * @param user 用户信息
+     * @param path 文件路径
+     * @param newName 新名
+     */
+    public void rename(User user, String path, String newName) throws OnLineDiskException {
+        OnLineDisk onLineDiskData = findOnLineDiskData(user);
+        path = FilesUtil.join(onLineDiskData.getDirName(), path);
+        if (!warehouse.rename(path, newName)) {
+            log.error("云盘重命名失败");
+            throw new OnLineDiskException("请检查路径");
+        }
+    }
+
+    /**
      * 获取单文件
      * @param user 用户信息
      * @param path 文件路径

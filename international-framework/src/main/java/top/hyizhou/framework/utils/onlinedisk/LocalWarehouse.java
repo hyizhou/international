@@ -102,6 +102,10 @@ public class LocalWarehouse implements Warehouse {
     @Override
     public boolean rename(String path, String newName) {
         path = FilesUtil.join(root, path);
+        if (!new File(path).exists()){
+            logger.error("路径不存在 -- path={}", path);
+            return false;
+        }
         try {
             FilesUtil.mv(new File(path), Paths.get(path).resolveSibling(newName).toFile());
         } catch (IOException e) {
