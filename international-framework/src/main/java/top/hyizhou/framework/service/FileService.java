@@ -299,7 +299,7 @@ public class FileService {
         String[] split = fileName.split("-");
         // 分割后少于三份，则文件名有问题，大于三份是允许的，文件实际名称中可能也存在"-"
         if (split.length < splitNum){
-            log.error("文件名命名不规范：{}", fileName);
+            log.debug("文件名命名不规范：{}", fileName);
             return null;
         }
         // 判断id规范，判断的目的防止其他文件不小心进入上传目录

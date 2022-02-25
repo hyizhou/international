@@ -42,8 +42,8 @@ public class OnlineDiskControl {
      * TODO 用来给前端测试数据的
      */
     @GetMapping("json/disk/folder/**")
-    public Resp<List> getFolderDetail(HttpSession session, HttpServletRequest request){
-        String uri = null;
+    public Resp<List<?>> getFolderDetail(HttpSession session, HttpServletRequest request){
+        String uri;
         try {
             uri = URLDecoder.decode(request.getRequestURI(), "utf8");
         } catch (UnsupportedEncodingException e) {

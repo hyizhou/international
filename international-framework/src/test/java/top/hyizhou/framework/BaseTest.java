@@ -1,6 +1,7 @@
 package top.hyizhou.framework;
 
-import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * 基本测试类
@@ -9,11 +10,10 @@ import java.io.File;
  */
 public class BaseTest {
     public static void main(String[] args) {
-        File[] files = File.listRoots();
-        for (File file : files) {
-            System.out.println(file.getAbsolutePath());
-            System.out.println(file.getFreeSpace());
-            System.out.println(file.getTotalSpace());
+        Path path = Paths.get("/aa/bb/cc/dd/e/");
+        System.out.println(path.getNameCount());
+        for (int i = 0; i < path.getNameCount(); i++) {
+            System.out.println("e".equals(path.getName(i).toString()));
         }
     }
 }

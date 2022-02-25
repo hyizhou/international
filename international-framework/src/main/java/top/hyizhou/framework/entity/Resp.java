@@ -11,6 +11,8 @@ public class Resp<E> {
     /** 更复杂的信息通过此属性发送 */
     private E body;
 
+    public Resp(){}
+
     public Resp(String code, String msg, E body) {
         this.code = code;
         this.msg = msg;

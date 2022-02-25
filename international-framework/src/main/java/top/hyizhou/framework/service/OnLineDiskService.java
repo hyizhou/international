@@ -179,13 +179,13 @@ public class OnLineDiskService {
     /**
      * 存储文件
      * @param path 存储文件位置，是前端获得的虚拟位置并不是实际物理位置
-     * @return true为成功，false则表示失败，若未抛出异常，则返回前端失败原因默认为“系统异常”
+     * @return 存储文件详细信息
      */
-    public boolean saveFile(User user, MultipartFile multipartFile, String path) throws OnLineDiskException {
+    public OnlinediskFileDetail saveFile(User user, MultipartFile multipartFile, String path) throws OnLineDiskException {
         // 判断上传的文件是否为空
         if (null == multipartFile || multipartFile.isEmpty()){
-            log.error("云盘文件存储完成 -- 但文件为空");
-            return true;
+            log.error("云盘文件存储 -- 上传文件为空，未进行处理");
+            throw new OnLineDiskException("上传文件为空");
         }
         // 获取剩余空间大小
         OnLineDisk userDisk = onLineDiskMapper.findById(user.getId());
@@ -199,9 +199,12 @@ public class OnLineDiskService {
             log.error("云盘文件存储失败 -- 空间不足，文件大小：[{}]，剩余空间:[{}]", multipartFile.getSize(), freeSize);
             throw new OnLineDiskException("文件过大");
         }
-        // 将文件写入仓库
-        path = FilesUtil.join(new File(userDisk.getDirName()).getName(), path, multipartFile.getName());
-        log.info("path={}", path);
+        // TODO 防范原始文件名让存储出错
+        String detailPath = FilesUtil.join(path, multipartFile.getOriginalFilename());
+        path = FilesUtil.join(new File(userDisk.getDirName()).getName(), path, multipartFile.getOriginalFilename());
+        if (log.isDebugEnabled()) {
+            log.debug("文件即将写入路径 -- path={}", path);
+        }
         try {
             if (!warehouse.save(path, multipartFile.getInputStream())) {
                 log.error("云盘文件存储失败 -- 具体原因查看上面日志");
@@ -215,7 +218,7 @@ public class OnLineDiskService {
         // 增加已使用空间
         userDisk.setUseSize(userDisk.getUseSize() + multipartFile.getSize());
         onLineDiskMapper.update(userDisk);
-        return true;
+        return getFileDetail(user, detailPath);
     }
 
     /**
@@ -250,6 +253,15 @@ public class OnLineDiskService {
     public Resource getFile(User user, String path) throws OnLineDiskException {
         OnLineDisk onLineDiskData = findOnLineDiskData(user);
         path = FilesUtil.join(new File(onLineDiskData.getDirName()).getName(), path);
+        SimpleFileInfo fileInfo = warehouse.getFileInfo(path);
+        if (fileInfo == null){
+            log.error("获取文件资源失败 -- 路径不存在：[{}]", path);
+            throw new OnLineDiskException("路径不存在");
+        }
+        if (fileInfo.getIsDirectory()) {
+            log.error("获取文件资源失败 -- 路径为一个目录:[{}]", path);
+            throw new OnLineDiskException("路径不正确，路径应为文件");
+        }
         Resource resource = warehouse.getFile(path);
         if (resource == null){
             log.error("获取文件资源失败 -- path=[{}]", path);
@@ -407,7 +419,7 @@ public class OnLineDiskService {
      * @param sharedId 分享id
      */
     @Transactional(rollbackFor = Exception.class)
-    public void CancelSharing(int sharedId) throws OnLineDiskException {
+    public void cancelSharing(int sharedId) throws OnLineDiskException {
         if (sharedMapper.delete(sharedId) != 1) {
             // 删除条数不为0，表中数据不存在
             log.error("取消文件分享失败 -- [{}]共享id不存在", sharedId);

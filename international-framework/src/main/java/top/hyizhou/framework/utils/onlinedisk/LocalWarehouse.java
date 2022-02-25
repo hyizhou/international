@@ -17,6 +17,7 @@ import java.util.List;
  * 仓库结构：云盘主仓库 -- 用户仓库 -- 具体路径
  * 如：D:/warehouse/userHouse/book/aa.txt；warehouse为主仓库，userHouse为用户仓库
  * 本类中方法所需参数path皆指相对主仓库的路径，即例子中"/userHouse/book/..."部分
+ * TODO: ../会被解析问题需要解决
  * @author hyizhou
  * @date 2022/2/17 15:48
  */
@@ -66,10 +67,10 @@ public class LocalWarehouse implements Warehouse {
         try {
             Files.createFile(FileSystems.getDefault().getPath(path));
         } catch (FileAlreadyExistsException e) {
-            logger.error("仓库保存文件失败 -- 文件已经存在");
+            logger.error("仓库保存文件失败 -- 文件已经存在：{}", path);
             return false;
         } catch (IOException e){
-            logger.error("仓库保存文件失败 -- 发生IO错误，或父目录不存在");
+            logger.error("仓库保存文件失败 -- 发生IO错误，或父目录不存在, path={}", path);
             return false;
         }
         // 若输入流为null，则创建空白文件
@@ -124,9 +125,23 @@ public class LocalWarehouse implements Warehouse {
         return true;
     }
 
+    /**
+     * 获取文件信息
+     * @param path 路径
+     * @return 返回文件信息对象，若范湖null，表示路径不存在
+     */
     @Override
     public SimpleFileInfo getFileInfo(String path) {
         File file = new File(FilesUtil.join(root, path));
+        try {
+            file = new File(file.getCanonicalPath());
+        } catch (IOException e) {
+            logger.error("从路径[{}]获取规范路径失败，查看后面日志，若没报错则问题不大", file.getAbsolutePath());
+        }
+        if (!file.exists()){
+            logger.error("路径[{}]不存在", file.getAbsolutePath());
+            return null;
+        }
         return getFileInfo(file);
     }
 
@@ -147,6 +162,7 @@ public class LocalWarehouse implements Warehouse {
 
     @Override
     public Resource getFile(String path) {
+        // TODO 应排除目录
         Path pathObj = FileSystems.getDefault().getPath(FilesUtil.join(root, path));
         Resource resource = new FileSystemResource(pathObj);
         if (!resource.exists()) {
