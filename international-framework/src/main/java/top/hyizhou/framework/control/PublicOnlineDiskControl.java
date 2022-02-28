@@ -25,8 +25,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -52,22 +50,6 @@ public class PublicOnlineDiskControl {
         this.publicUser = accountService.findUser(null, "public");
     }
 
-    /**
-     * TODO 检查表示文件路径中是否会出现异常字符
-     * 例：uri = /api/public/mkdir/../abc，解析出路径为：../abc
-     *    则表示在公共仓库同级的位置，创建了abc目录，实际上操作范围应限制在公共仓库，这会导致安全问题
-     * @return 路径不正确才会做
-     */
-    @ModelAttribute
-    public ResponseEntity<Resp<?>> examinePath(HttpServletRequest req){
-        Path path = Paths.get(req.getRequestURI());
-        for (int i = 3; i < path.getNameCount(); i++) {
-            if ("..".equals(path.getName(i).toString())){
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Resp<String>(RespCode.BAD_REQUEST, "路径中存在“..”非法字符", null));
-            }
-        }
-        return null;
-    }
 
 
     /**

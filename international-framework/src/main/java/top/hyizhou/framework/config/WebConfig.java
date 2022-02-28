@@ -7,6 +7,7 @@ import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import top.hyizhou.framework.config.property.BaseProperty;
 import top.hyizhou.framework.control.interceptor.AccessLimitInterceptor;
+import top.hyizhou.framework.control.interceptor.BadPathInterceptor;
 import top.hyizhou.framework.control.interceptor.LogInterceptor;
 import top.hyizhou.framework.control.interceptor.VerifyInterceptor;
 
@@ -35,6 +36,8 @@ public class WebConfig implements WebMvcConfigurer {
         if (!property.isSkipLogin()) {
             registry.addInterceptor(verifyInterceptor).excludePathPatterns("/test/**", "/register", "/error**");
         }
+        // 公共仓库api请求路径检测拦截器
+        registry.addInterceptor(new BadPathInterceptor()).addPathPatterns("/api/public/**");
     }
 
     @Override
