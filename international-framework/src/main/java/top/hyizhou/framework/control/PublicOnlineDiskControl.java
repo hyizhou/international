@@ -139,14 +139,38 @@ public class PublicOnlineDiskControl {
         }
     }
 
+    /**
+     * 重命名文件接口，接收json，其中包括旧文件名和新文件名。uri路径中指定操作目录。
+     */
     @PutMapping("/update/**")
-    public Resp<?> rename(String oldName, String newName, HttpServletRequest req){
+    public Resp<?> rename(@RequestBody Rename rename , HttpServletRequest req){
         String path = extractPath("/api/public/update/**", req.getRequestURI());
         try {
-            service.rename(publicUser, Paths.get(path, oldName).toString(), newName);
+            service.rename(publicUser, Paths.get(path, rename.getOldName()).toString(), rename.getNewName());
             return new Resp<>(RespCode.OK, null, null);
         } catch (OnLineDiskException e) {
             return new Resp<>(RespCode.ERROR, e.getMessage(), null);
+        }
+    }
+
+    public static final class Rename{
+        private String oldName;
+        private String newName;
+
+        public String getOldName() {
+            return oldName;
+        }
+
+        public void setOldName(String oldName) {
+            this.oldName = oldName;
+        }
+
+        public String getNewName() {
+            return newName;
+        }
+
+        public void setNewName(String newName) {
+            this.newName = newName;
         }
     }
 
