@@ -25,6 +25,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -122,37 +123,65 @@ public class PublicOnlineDiskControl {
     }
 
     /**
-     * 重命名文件接口，接收json，其中包括旧文件名和新文件名。uri路径中指定操作目录。
+     * 更新文件，可以执行重命名，移动，复制，由接收到的报文json数据决定
      */
     @PutMapping("/update/**")
-    public Resp<?> rename(@RequestBody Rename rename , HttpServletRequest req){
-        String path = extractPath("/api/public/update/**", req.getRequestURI());
+    public Resp<?> update(@RequestBody UpdateMsg  updateMsg , HttpServletRequest req){
+        String oldPath = updateMsg.oldPath;
+        String targetPath = updateMsg.targetPath;
         try {
-            service.rename(publicUser, Paths.get(path, rename.getOldName()).toString(), rename.getNewName());
+            switch (updateMsg.getType()) {
+                // 重命名
+                case 1:
+                    service.rename(publicUser, oldPath, Paths.get(targetPath).getFileName().toString());
+                    break;
+                case 2:
+                    // 移动
+                    service.move(publicUser, oldPath, targetPath);
+                    break;
+                case 3:
+                    // todo 复制
+                    break;
+                default:
+                    return new Resp<>(RespCode.ERROR, "更新类型错误", null);
+            }
             return new Resp<>(RespCode.OK, null, null);
         } catch (OnLineDiskException e) {
             return new Resp<>(RespCode.ERROR, e.getMessage(), null);
         }
     }
 
-    public static final class Rename{
-        private String oldName;
-        private String newName;
+    /**
+     * 如何进行更新的信息
+     */
+    public static final class UpdateMsg{
+        private String oldPath;
+        private String targetPath;
+        /** 操作类型，1，重命名， 2，移动， 3，复制 */
+        private int type;
 
-        public String getOldName() {
-            return oldName;
+        public String getOldPath() {
+            return oldPath;
         }
 
-        public void setOldName(String oldName) {
-            this.oldName = oldName;
+        public void setOldPath(String oldPath) {
+            this.oldPath = oldPath;
         }
 
-        public String getNewName() {
-            return newName;
+        public String getTargetPath() {
+            return targetPath;
         }
 
-        public void setNewName(String newName) {
-            this.newName = newName;
+        public void setTargetPath(String targetPath) {
+            this.targetPath = targetPath;
+        }
+
+        public int getType() {
+            return type;
+        }
+
+        public void setType(int type) {
+            this.type = type;
         }
     }
 

@@ -259,6 +259,15 @@ public class OnLineDiskService {
         }
     }
 
+    public void move(User user, String path, String targetPath) throws OnLineDiskException {
+        OnLineDisk onLineDiskData = findOnLineDiskData(user);
+        path = FilesUtil.join(onLineDiskData.getDirName(), path);
+        if (!warehouse.move(path, targetPath)) {
+            log.error("云盘移动失败");
+            throw new OnLineDiskException("请检查路径");
+        }
+    }
+
     /**
      * 获取单文件
      * @param user 用户信息
