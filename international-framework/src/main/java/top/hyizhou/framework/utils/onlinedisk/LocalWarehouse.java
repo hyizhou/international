@@ -17,7 +17,8 @@ import java.util.List;
  * 仓库结构：云盘主仓库 -- 用户仓库 -- 具体路径
  * 如：D:/warehouse/userHouse/book/aa.txt；warehouse为主仓库，userHouse为用户仓库
  * 本类中方法所需参数path皆指相对主仓库的路径，即例子中"/userHouse/book/..."部分
- * TODO: ../会被解析问题需要解决
+ *
+ * bug：../会被解析问题已在拦截器中解决
  * @author hyizhou
  * @date 2022/2/17 15:48
  */
@@ -194,5 +195,28 @@ public class LocalWarehouse implements Warehouse {
             infos.add(getFileInfo(subFile));
         }
         return infos;
+    }
+
+    /**
+     * 复制目录或文件到另一个位置
+     */
+    @Override
+    public boolean copy(String path, String targetPath) {
+        path = FilesUtil.join(root, path);
+        targetPath = FilesUtil.join(root, targetPath);
+        File pathFile = new File(path);
+        File targetFile = new File(targetPath);
+        if (!pathFile.exists()) {
+            logger.error("复制仓库文件失败 -- 源路径不存在");
+            return false;
+        }
+        try{
+            FilesUtil.cp(pathFile, targetFile);
+        }catch(IOException e){
+            logger.error("仓库复制文件失败 -- io异常");
+            logger.error("", e);
+            return false;
+        }
+        return true;
     }
 }

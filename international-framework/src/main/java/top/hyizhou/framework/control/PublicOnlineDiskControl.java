@@ -90,10 +90,13 @@ public class PublicOnlineDiskControl {
         try {
             Resource resource = service.getFile(publicUser, path);
             return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""+ URLEncoder.encode(resource.getFilename())+"\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""+ URLEncoder.encode(resource.getFilename(), "utf-8")+"\"")
                     .body(resource);
         } catch (OnLineDiskException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Resp<String>("404", e.getMessage(), null));
+        } catch (UnsupportedEncodingException ignore) {
+            log.error("encode指定编码错误，按理不应产生此错误");
+            throw new RuntimeException();
         }
     }
 
@@ -110,7 +113,7 @@ public class PublicOnlineDiskControl {
 
     /**
      * 创建目录的接口
-      */
+     */
     @PostMapping("/mkdir/**")
     public Resp<?> mkdir(HttpServletRequest req){
         String pathStr = extractPath("/api/public/mkdir/**", req.getRequestURI());
@@ -140,10 +143,11 @@ public class PublicOnlineDiskControl {
                     service.move(publicUser, oldPath, targetPath);
                     break;
                 case 3:
-                    // todo 复制
+                    // 复制
+                    service.copy(publicUser, oldPath, targetPath);
                     break;
                 default:
-                    return new Resp<>(RespCode.ERROR, "更新类型错误", null);
+                    return new Resp<>(RespCode.ERROR, "更新类型码错误，应为{1,2,3}", null);
             }
             return new Resp<>(RespCode.OK, null, null);
         } catch (OnLineDiskException e) {

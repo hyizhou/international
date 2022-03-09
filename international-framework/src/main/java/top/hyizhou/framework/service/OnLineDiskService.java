@@ -259,11 +259,36 @@ public class OnLineDiskService {
         }
     }
 
+    /**
+     * 移动文件或目录
+     * @param user 用户信息
+     * @param path 源文件路径
+     * @param targetPath 目标文件路径
+     * @throws OnLineDiskException 用于提示异常
+     */
     public void move(User user, String path, String targetPath) throws OnLineDiskException {
         OnLineDisk onLineDiskData = findOnLineDiskData(user);
         path = FilesUtil.join(onLineDiskData.getDirName(), path);
+        targetPath = FilesUtil.join(onLineDiskData.getDirName(), targetPath);
         if (!warehouse.move(path, targetPath)) {
             log.error("云盘移动失败");
+            throw new OnLineDiskException("请检查路径");
+        }
+    }
+
+    /**
+     * 复制文件或目录
+     * @param user 用户信息
+     * @param path 源文件路径
+     * @param targetPath 目标文件路径
+     * @throws OnLineDiskException
+     */
+    public void copy(User user, String path, String targetPath) throws OnLineDiskException{
+        OnLineDisk onLineDiskData = findOnLineDiskData(user);
+        path = FilesUtil.join(onLineDiskData.getDirName(), path);
+        targetPath = FilesUtil.join(onLineDiskData.getDirName(), targetPath);
+        if(!warehouse.copy(path, targetPath)){
+            log.error("云盘复制失败");
             throw new OnLineDiskException("请检查路径");
         }
     }

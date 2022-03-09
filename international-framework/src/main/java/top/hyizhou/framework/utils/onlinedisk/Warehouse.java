@@ -51,6 +51,14 @@ public interface Warehouse {
     boolean move(String path, String newPath);
 
     /**
+     * 复制文件或目录
+     * @param path 原路径
+     * @param targetPath 目标路径
+     * @return 成功操作返回true
+     */
+    boolean copy(String path, String targetPath);
+
+    /**
      * 获取文件/目录信息
      * @param path 路径
      * @return 文件信息
