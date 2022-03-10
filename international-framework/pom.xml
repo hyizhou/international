@@ -12,7 +12,6 @@
     <artifactId>framework</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>framework</name>
-    <!--<name>formework</name>-->
     <description>核心框架</description>
     <properties>
         <java.version>1.8</java.version>
@@ -48,17 +47,6 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger2</artifactId>
-            <version>2.9.2</version>
-        </dependency>
-        <!--UI原生版本-->
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger-ui</artifactId>
-            <version>2.9.2</version>
         </dependency>
 
         <!--<dependency>-->

@@ -1,7 +1,5 @@
 package top.hyizhou.framework.control;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -27,7 +25,6 @@ import java.util.Map;
  */
 @RequestMapping("/account")
 @Controller
-@Api(tags = "账户控制")
 public class AccountControl {
     private final static Logger log = LoggerFactory.getLogger(AccountControl.class);
     private final AccountService accountService;
@@ -44,7 +41,6 @@ public class AccountControl {
     @PostMapping("/modify")
     @ResponseBody
     @Transactional(rollbackFor = Exception.class)
-    @ApiOperation(value = "修改用户信息", notes = "不能修改账户名")
     public ResponseEntity<MsgResp> modify( @RequestBody User user) {
         if (log.isDebugEnabled()) {
             log.debug("修改信息：{}", user.toString());
@@ -64,7 +60,6 @@ public class AccountControl {
     @PostMapping("/modifyAcName")
     @ResponseBody
     @Transactional(rollbackFor = Exception.class)
-    @ApiOperation(value = "账户名修改", notes = "旧名称为现用名")
     public ResponseEntity<MsgResp> modifyAccountName(@RequestBody Map<String, String> map) {
 
         String oldName = map.get("oldName");

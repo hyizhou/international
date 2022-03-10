@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.5.5</version>
+        <version>2.6.3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>xyz.hyizhou</groupId>
@@ -21,9 +21,6 @@
     <modules>
         <module>monitor</module>
         <module>international-framework</module>
-        <module>international-webapp</module>
-        <!--这不是个springboot工程-->
-        <module>international-media</module>
     </modules>
     <dependencies>
         <dependency>
@@ -44,7 +41,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.5.5</version>
+                <version>2.6.3</version>
             </plugin>
         </plugins>
     </build>
