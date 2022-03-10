@@ -8,7 +8,7 @@
         <version>2.6.3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>xyz.hyizhou</groupId>
+    <groupId>top.hyizhou</groupId>
     <artifactId>international</artifactId>
     <version>0.0.1</version>
     <name>international</name>
@@ -19,7 +19,7 @@
         <java.version>1.8</java.version>
     </properties>
     <modules>
-        <module>monitor</module>
+        <module>international-monitor</module>
         <module>international-framework</module>
     </modules>
     <dependencies>

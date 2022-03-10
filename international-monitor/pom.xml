@@ -3,12 +3,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>xyz.hyizhou</groupId>
+        <groupId>top.hyizhou</groupId>
         <artifactId>international</artifactId>
         <version>0.0.1</version>
         <relativePath>../pom.xml</relativePath> <!-- lookup parent from repository -->
     </parent>
-    <groupId>xyz.yizhou</groupId>
     <artifactId>monitor</artifactId>
     <version>0.0.1</version>
     <name>monitor</name>
@@ -23,7 +22,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
-
+        <!--用于提供api接口-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -35,13 +34,6 @@
             <artifactId>oshi-core</artifactId>
             <version>3.9.1</version>
         </dependency>
-
-        <!--hutool工具包-->
-        <!--<dependency>-->
-        <!--    <groupId>cn.hutool</groupId>-->
-        <!--    <artifactId>hutool-all</artifactId>-->
-        <!--    <version>5.7.14</version>-->
-        <!--</dependency>-->
 
         <!-- json工具类 -->
         <dependency>
