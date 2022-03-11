@@ -1,5 +1,8 @@
 package top.hyizhou.framework;
 
+import org.junit.jupiter.api.Test;
+import org.springframework.security.core.userdetails.User;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -15,5 +18,14 @@ public class BaseTest {
         for (int i = 0; i < path.getNameCount(); i++) {
             System.out.println("e".equals(path.getName(i).toString()));
         }
+    }
+    @Test
+    public void test(){
+        User user = (User) User.withDefaultPasswordEncoder()
+                .username("user")
+                .password("1234")
+                .roles("user")
+                .build();
+        System.out.println(user.getPassword());
     }
 }
