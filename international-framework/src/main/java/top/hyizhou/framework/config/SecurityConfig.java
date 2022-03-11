@@ -8,7 +8,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import top.hyizhou.framework.service.TheUserDetailService;
+import top.hyizhou.framework.service.TheUserDetailServiceImpl;
 
 /**
  * @author hyizhou
@@ -18,7 +18,7 @@ import top.hyizhou.framework.service.TheUserDetailService;
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
-    private TheUserDetailService userDetailService;
+    private TheUserDetailServiceImpl userDetailService;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -29,7 +29,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers("/index","/").authenticated();
+                // 注册页面放行
+                .antMatchers("/register").permitAll()
+                .antMatchers("/**").authenticated();
 
         http.formLogin()
                 .loginPage("/login")

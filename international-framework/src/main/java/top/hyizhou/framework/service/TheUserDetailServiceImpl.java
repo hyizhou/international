@@ -10,8 +10,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import top.hyizhou.framework.mapper.UsersMapper;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -20,25 +20,26 @@ import java.util.List;
  * @date 2022/3/11 17:08
  */
 @Service
-public class TheUserDetailService implements UserDetailsService {
-    private Logger logger = LoggerFactory.getLogger(TheUserDetailService.class);
+public class TheUserDetailServiceImpl implements UserDetailsService {
+    private final Logger logger = LoggerFactory.getLogger(TheUserDetailServiceImpl.class);
+    private final UsersMapper usersMapper;
+
+    public TheUserDetailServiceImpl(UsersMapper usersMapper) {
+        this.usersMapper = usersMapper;
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-//        String userName = "user3";
-        String password = "1234";
+
+        top.hyizhou.framework.entity.User user = usersMapper.findByAccountName(username);
+        if (user == null){
+            logger.info("没有此用户："+username);
+            throw new UsernameNotFoundException("未找到此用户："+username);
+        }
+        String password = user.getPassword();
         List<GrantedAuthority> authorityList = AuthorityUtils.commaSeparatedStringToAuthorityList("USER,");
         logger.info("收到认证：username={}", username);
-        return new TheUsers(username, new BCryptPasswordEncoder().encode(password), authorityList);
+        return new User(username, new BCryptPasswordEncoder().encode(password), authorityList);
     }
 
-    // 直接继承已存在的UserDetails接口实现类
-    public static final class TheUsers extends User {
-        public TheUsers(String username, String password, Collection<? extends GrantedAuthority> authorities) {
-            super(username, password, authorities);
-        }
-
-        public TheUsers(String username, String password, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities) {
-            super(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities);
-        }
-    }
 }
