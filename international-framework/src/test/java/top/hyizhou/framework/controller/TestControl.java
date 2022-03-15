@@ -1,15 +1,19 @@
-package top.hyizhou.framework.control;
+package top.hyizhou.framework.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.ResourceUtils;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import top.hyizhou.framework.entity.User;
 import top.hyizhou.framework.mapper.UsersMapper;
 import top.hyizhou.framework.utils.container.LoggedOnContainer;
@@ -32,18 +36,35 @@ public class TestControl {
     private LoggedOnContainer container;
     private final Logger logger = LoggerFactory.getLogger(TestControl.class);
     @RequestMapping("/test/1")
-    public String test1(RedirectAttributes attributes){
-        System.out.println("到达test1");
-//        attributes.addAttribute("aa", "这里是aa参数");
-        attributes.addFlashAttribute("aa", "这是啊啊");
-        return "redirect:/test/2";
+    @ResponseBody
+    public String test1(Authentication authentication){
+        System.out.println(authentication.getName());
+        System.out.println(authentication.getAuthorities().toString());
+        return "ok";
     }
 
     @RequestMapping("/test/2")
     @ResponseBody
-    public String test2(@ModelAttribute("aa") String aa){
-        System.out.println("到达test2");
-        System.out.println("输出aa："+ aa);
+    public String test2(@CurrentSecurityContext SecurityContext context){
+        System.out.println(context.getAuthentication().getName());
+        System.out.println(context.getAuthentication().getAuthorities().toString());
+        return "ok";
+    }
+
+    @RequestMapping("/test/3")
+    @ResponseBody
+    public String test2(@AuthenticationPrincipal UserDetails user){
+        System.out.println(user.getUsername());
+        System.out.println(user.getAuthorities().toString());
+        return "ok";
+    }
+
+    @RequestMapping("/test/4")
+    @ResponseBody
+    public String test2(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println(authentication.getName());
+        System.out.println(authentication.getAuthorities().toString());
         return "ok";
     }
 

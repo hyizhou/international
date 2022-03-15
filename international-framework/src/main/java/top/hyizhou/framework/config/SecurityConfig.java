@@ -28,6 +28,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        http.csrf().disable();
+
         http.authorizeRequests()
                 // 注册页面放行
                 .antMatchers("/register").permitAll()
@@ -56,7 +58,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // 使session失效
                 .invalidateHttpSession(true);
 
-
-        http.csrf().disable();
+        http.rememberMe()
+            // 运行令牌有效期
+            .tokenValiditySeconds(60)
+            // 用于查找userDetails
+            .userDetailsService(userDetailService)
+            // 记住我选框的字段名
+            .rememberMeParameter("re-me")
+            // 生成token的方式
+            .tokenRepository(null);
     }
 }

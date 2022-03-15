@@ -22,9 +22,7 @@ import top.hyizhou.framework.service.OnLineDiskService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -37,18 +35,18 @@ import java.util.List;
 @RestController
 @CrossOrigin("*")
 @RequestMapping("/api/public")
-public class PublicOnlineDiskControl {
+public class PublicOnlineDiskControl extends DiskControlBase {
     private final Logger log = LoggerFactory.getLogger(PublicOnlineDiskControl.class);
     private final OnLineDiskService service;
-    private final AntPathMatcher matcher;
 
     /** 公共用户，事先指定 */
     private final User publicUser;
 
     public PublicOnlineDiskControl(AccountService accountService, OnLineDiskService service, AntPathMatcher matcher) {
+        super(matcher);
         this.service = service;
-        this.matcher = matcher;
         this.publicUser = accountService.findUser(null, "public");
+
     }
 
 
@@ -128,8 +126,8 @@ public class PublicOnlineDiskControl {
     /**
      * 更新文件，可以执行重命名，移动，复制，由接收到的报文json数据决定
      */
-    @PutMapping("/update/**")
-    public Resp<?> update(@RequestBody UpdateMsg  updateMsg , HttpServletRequest req){
+    @PutMapping({"/update/**", "/update"})
+    public Resp<?> update(@RequestBody UpdateMsg  updateMsg){
         String oldPath = updateMsg.oldPath;
         String targetPath = updateMsg.targetPath;
         try {
@@ -189,23 +187,4 @@ public class PublicOnlineDiskControl {
         }
     }
 
-    /**
-     * 获得uri上的资源路径
-     * @param pattern 如何获取路径的表达式
-     * @param uri uri路径，不包括请求协议
-     * @return 从uri解析到的路径
-     */
-    private String extractPath(String pattern, String uri){
-        String path = "";
-        try {
-            String decodeUri = URLDecoder.decode(uri, StandardCharsets.UTF_8.toString());
-            path = matcher.extractPathWithinPattern(pattern, decodeUri);
-            if (log.isDebugEnabled()){
-                log.debug("解析文件路径： path={}", path);
-            }
-        } catch (UnsupportedEncodingException ignored) {
-            log.error("解码uri出错，检查一下客户端url编码是不是utf8");
-        }
-        return path;
-    }
 }

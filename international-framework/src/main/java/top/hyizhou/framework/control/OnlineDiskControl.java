@@ -1,13 +1,16 @@
 package top.hyizhou.framework.control;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.ui.Model;
 import org.springframework.util.AntPathMatcher;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import top.hyizhou.framework.config.constant.RespCode;
 import top.hyizhou.framework.entity.Resp;
 import top.hyizhou.framework.entity.SimpleFileInfo;
 import top.hyizhou.framework.entity.User;
@@ -16,9 +19,6 @@ import top.hyizhou.framework.service.AccountService;
 import top.hyizhou.framework.service.OnLineDiskService;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.List;
 
 /**
@@ -27,42 +27,51 @@ import java.util.List;
  * @date 2022/2/21 15:52
  */
 @RestController
-@RequestMapping
-@CrossOrigin(origins = "*")
-public class OnlineDiskControl {
-    private final Logger log = LoggerFactory.getLogger(OnlineDiskControl.class);
+@RequestMapping("/netDisk/")
+public class OnlineDiskControl extends DiskControlBase{
     @Autowired
     private OnLineDiskService service;
     @Autowired
     private AccountService accountService;
-    @Autowired
-    private AntPathMatcher matcher;
+
+    public OnlineDiskControl(AntPathMatcher matcher, AccountService accountService, OnLineDiskService service) {
+        super(matcher);
+        this.service = service;
+        this.accountService = accountService;
+    }
+
+    @ModelAttribute
+    private User findUser(@AuthenticationPrincipal UserDetails userDetails){
+        // 一般经过验证的不太可能是null，若是null则表示没有登录
+        if (userDetails == null){
+            throw new UsernameNotFoundException("没有用户登入");
+        }
+        String username = userDetails.getUsername();
+        User user = accountService.findUser(null, username);
+        if (user == null){
+            throw new UsernameNotFoundException("没有此用户: "+ username);
+        }
+        return user;
+    }
 
     /**
-     * TODO 用来给前端测试数据的
+     * 获取目录子文件列表，请求路径"/netDisk/folder/**"
+     * @param req 请求
+     * @param model 装user对象
+     * @return 响应报文
      */
-    @GetMapping("json/disk/folder/**")
-    public Resp<List<?>> getFolderDetail(HttpSession session, HttpServletRequest request){
-        String uri;
-        try {
-            uri = URLDecoder.decode(request.getRequestURI(), "utf8");
-        } catch (UnsupportedEncodingException e) {
-            uri = URLDecoder.decode(request.getRequestURI());
-        }
-        System.out.println(uri);
-        String path = matcher.extractPathWithinPattern("json/disk/folder/**", uri);
-        System.out.println(path);
-        System.out.println("session的id = "+session.getId());
-        User user = accountService.findUser(21, null);
-        List<SimpleFileInfo> list;
-        try {
-            list = service.getFolderSub(user, path);
+    @GetMapping("/folder/**")
+    public Resp<List<?>> getFolderSubs(HttpServletRequest req, Model model){
+        String path = extractPath("/netDisk/folder/**", req.getRequestURI());
+        User user = (User) model.getAttribute("user");
+        try{
+            assert user != null;
+            List<SimpleFileInfo> subs = service.getFolderSub(user, path);
+            return new Resp<>(RespCode.OK, null, subs);
         } catch (OnLineDiskException e) {
-            log.error("获取文件列表失败了,看上面日志找错去吧");
-            log.error("", e);
-            return null;
+            log.error(">> 用户[{}]获取文件列表失败：{}", user.getName(), path);
+            return new Resp<>(RespCode.ERROR, e.getMessage(), null);
         }
-        return new Resp<>("100", "", list);
-
     }
+
 }
