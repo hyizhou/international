@@ -1,22 +1,26 @@
 package top.hyizhou.framework.control;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.ui.Model;
 import org.springframework.util.AntPathMatcher;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import top.hyizhou.framework.config.constant.RespCode;
+import top.hyizhou.framework.entity.OnlinediskFileDetail;
 import top.hyizhou.framework.entity.Resp;
 import top.hyizhou.framework.entity.SimpleFileInfo;
 import top.hyizhou.framework.entity.User;
 import top.hyizhou.framework.except.OnLineDiskException;
 import top.hyizhou.framework.service.AccountService;
 import top.hyizhou.framework.service.OnLineDiskService;
+import top.hyizhou.framework.utils.UrlUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -29,10 +33,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/netDisk/")
 public class OnlineDiskControl extends DiskControlBase{
-    @Autowired
-    private OnLineDiskService service;
-    @Autowired
-    private AccountService accountService;
+    private final String URI = "uri";
+    private final String USER = "user";
+    private final OnLineDiskService service;
+    private final AccountService accountService;
 
     public OnlineDiskControl(AntPathMatcher matcher, AccountService accountService, OnLineDiskService service) {
         super(matcher);
@@ -41,7 +45,7 @@ public class OnlineDiskControl extends DiskControlBase{
     }
 
     @ModelAttribute
-    private User findUser(@AuthenticationPrincipal UserDetails userDetails){
+    private void findUser(@AuthenticationPrincipal UserDetails userDetails, HttpServletRequest req, Model model){
         // 一般经过验证的不太可能是null，若是null则表示没有登录
         if (userDetails == null){
             throw new UsernameNotFoundException("没有用户登入");
@@ -51,20 +55,21 @@ public class OnlineDiskControl extends DiskControlBase{
         if (user == null){
             throw new UsernameNotFoundException("没有此用户: "+ username);
         }
-        return user;
+        model.addAttribute(this.USER, user);
+        model.addAttribute(this.URI, req.getRequestURI());
     }
 
     /**
      * 获取目录子文件列表，请求路径"/netDisk/folder/**"
-     * @param req 请求
      * @param model 装user对象
      * @return 响应报文
      */
     @GetMapping("/folder/**")
-    public Resp<List<?>> getFolderSubs(HttpServletRequest req, Model model){
-        String path = extractPath("/netDisk/folder/**", req.getRequestURI());
-        User user = (User) model.getAttribute("user");
+    public Resp<List<?>> getFolderSubs(Model model){
+        String path = extractPath("/netDisk/folder/**", (String) model.getAttribute(this.URI));
+        User user = (User) model.getAttribute(this.USER);
         try{
+            // 肯定不为空
             assert user != null;
             List<SimpleFileInfo> subs = service.getFolderSub(user, path);
             return new Resp<>(RespCode.OK, null, subs);
@@ -74,4 +79,43 @@ public class OnlineDiskControl extends DiskControlBase{
         }
     }
 
+    /**
+     * 文件下载
+     * @param model uri和User对象
+     */
+    @GetMapping("/download/**")
+    public ResponseEntity<?> download(Model model){
+        String path = extractPath("/netDisk/download/**", (String) model.getAttribute(this.URI));
+        User user = (User) model.getAttribute(this.USER);
+        try{
+            assert user != null;
+            Resource resource = service.getFile(user, path);
+            if (log.isDebugEnabled()){
+                log.debug(">> 文件下载接口：用户：[{}]，路径：[{}]，获取文件名：[{}]", user.getAccountName(), path, resource.getFilename());
+            }
+            return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""+ UrlUtil.encode(resource.getFilename()) + "\"")
+                    .body(resource);
+        } catch (OnLineDiskException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Resp<String>("404", e.getMessage(), null));
+        }
+    }
+
+
+    /**
+     * 文件上传接口
+     * @param file 前端上传的文件，从post请求中form表单中取出文件
+     * @param model 存储uri和User对象
+     */
+    @PostMapping("/upload/**")
+    public Resp<?> upload(@RequestParam(value = "file")MultipartFile file, Model model){
+        String path = extractPath("/netDisk/upload/**", (String) model.getAttribute(this.URI));
+        User user = (User) model.getAttribute(this.USER);
+        try{
+            OnlinediskFileDetail detail = service.saveFile(user, file, path);
+            return new Resp<>(RespCode.OK, null, detail);
+        } catch (OnLineDiskException e) {
+            return new Resp<>(RespCode.ERROR, e.getMessage(), null);
+        }
+    }
 }
