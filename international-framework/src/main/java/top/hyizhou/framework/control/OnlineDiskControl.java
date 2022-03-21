@@ -13,6 +13,7 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import top.hyizhou.framework.config.constant.RespCode;
+import top.hyizhou.framework.control.body.OnlineDiskUpdateBody;
 import top.hyizhou.framework.entity.OnlinediskFileDetail;
 import top.hyizhou.framework.entity.Resp;
 import top.hyizhou.framework.entity.SimpleFileInfo;
@@ -65,7 +66,12 @@ public class OnlineDiskControl extends DiskControlBase{
         model.addAttribute(URI, req.getRequestURI());
         // 尝试在此获取path：本控制器中的uri结构都是/netDisk/具体方法/path...，因此可通过从第三层取后面值获取path
         Path path = Paths.get(req.getRequestURI());
-        model.addAttribute(PATH, UrlUtil.decode(path.subpath(2, path.getNameCount()).toString()));
+        String pathStr = "";
+        if (path.getNameCount() > 2){
+            pathStr = UrlUtil.decode(path.subpath(2, path.getNameCount()).toString());
+        }
+        model.addAttribute(PATH, pathStr);
+
     }
 
     /**
@@ -118,5 +124,37 @@ public class OnlineDiskControl extends DiskControlBase{
             return new Resp<>(RespCode.ERROR, e.getMessage(), null);
         }
     }
-    
+
+    /**
+     * 进行更新操作，包括移动，删除，重命名，复制
+     * @param user 用户对象
+     * @param body 操作的原路径和目标路径
+     */
+    @PutMapping({"/update/**", "/update"})
+    public Resp<?> update(@ModelAttribute(USER) User user, @RequestBody OnlineDiskUpdateBody body){
+        String oldPath = body.getOldPath();
+        String targetPath = body.getTargetPath();
+        try{
+            switch (body.getType()){
+                // 重命名
+                case 1:
+                    service.rename(user, oldPath, Paths.get(targetPath).getFileName().toString());
+                    break;
+                case 2:
+                    // 移动
+                    service.move(user, oldPath, targetPath);
+                    break;
+                case 3:
+                    // 复制
+                    service.copy(user, oldPath, targetPath);
+                    break;
+                default:
+                    return new Resp<>(RespCode.ERROR, "更新类型码错误，应为{1(重命名),2(移动),3(复制)}", null);
+            }
+            return new Resp<>(RespCode.OK, null, null);
+        } catch (OnLineDiskException e) {
+            return new Resp<>(RespCode.ERROR, e.getMessage(), null);
+        }
+    }
+
 }
