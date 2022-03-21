@@ -23,6 +23,8 @@ import top.hyizhou.framework.service.OnLineDiskService;
 import top.hyizhou.framework.utils.UrlUtil;
 
 import javax.servlet.http.HttpServletRequest;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -33,8 +35,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/netDisk/")
 public class OnlineDiskControl extends DiskControlBase{
-    private final String URI = "uri";
-    private final String USER = "user";
+    private static final String URI = "uri";
+    private static final String USER = "user";
+    private static final String PATH = "path";
     private final OnLineDiskService service;
     private final AccountService accountService;
 
@@ -44,6 +47,9 @@ public class OnlineDiskControl extends DiskControlBase{
         this.accountService = accountService;
     }
 
+    /**
+     * 用户提前获取到用户与操作路径
+     */
     @ModelAttribute
     private void findUser(@AuthenticationPrincipal UserDetails userDetails, HttpServletRequest req, Model model){
         // 一般经过验证的不太可能是null，若是null则表示没有登录
@@ -55,19 +61,19 @@ public class OnlineDiskControl extends DiskControlBase{
         if (user == null){
             throw new UsernameNotFoundException("没有此用户: "+ username);
         }
-        model.addAttribute(this.USER, user);
-        model.addAttribute(this.URI, req.getRequestURI());
+        model.addAttribute(USER, user);
+        model.addAttribute(URI, req.getRequestURI());
+        // 尝试在此获取path：本控制器中的uri结构都是/netDisk/具体方法/path...，因此可通过从第三层取后面值获取path
+        Path path = Paths.get(req.getRequestURI());
+        model.addAttribute(PATH, UrlUtil.decode(path.subpath(2, path.getNameCount()).toString()));
     }
 
     /**
      * 获取目录子文件列表，请求路径"/netDisk/folder/**"
-     * @param model 装user对象
      * @return 响应报文
      */
     @GetMapping("/folder/**")
-    public Resp<List<?>> getFolderSubs(Model model){
-        String path = extractPath("/netDisk/folder/**", (String) model.getAttribute(this.URI));
-        User user = (User) model.getAttribute(this.USER);
+    public Resp<List<?>> getFolderSubs(@ModelAttribute(USER) User user, @ModelAttribute(PATH) String path){
         try{
             // 肯定不为空
             assert user != null;
@@ -81,12 +87,9 @@ public class OnlineDiskControl extends DiskControlBase{
 
     /**
      * 文件下载
-     * @param model uri和User对象
      */
     @GetMapping("/download/**")
-    public ResponseEntity<?> download(Model model){
-        String path = extractPath("/netDisk/download/**", (String) model.getAttribute(this.URI));
-        User user = (User) model.getAttribute(this.USER);
+    public ResponseEntity<?> download(@ModelAttribute(USER) User user, @ModelAttribute(PATH) String path){
         try{
             assert user != null;
             Resource resource = service.getFile(user, path);
@@ -105,12 +108,9 @@ public class OnlineDiskControl extends DiskControlBase{
     /**
      * 文件上传接口
      * @param file 前端上传的文件，从post请求中form表单中取出文件
-     * @param model 存储uri和User对象
      */
     @PostMapping("/upload/**")
-    public Resp<?> upload(@RequestParam(value = "file")MultipartFile file, Model model){
-        String path = extractPath("/netDisk/upload/**", (String) model.getAttribute(this.URI));
-        User user = (User) model.getAttribute(this.USER);
+    public Resp<?> upload(@RequestParam(value = "file")MultipartFile file, @ModelAttribute(USER) User user, @ModelAttribute(PATH) String path){
         try{
             OnlinediskFileDetail detail = service.saveFile(user, file, path);
             return new Resp<>(RespCode.OK, null, detail);
@@ -118,4 +118,5 @@ public class OnlineDiskControl extends DiskControlBase{
             return new Resp<>(RespCode.ERROR, e.getMessage(), null);
         }
     }
+    
 }

@@ -1,7 +1,9 @@
 package top.hyizhou.framework.utils;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
@@ -186,6 +188,30 @@ public class UrlUtil {
     public static String encode(String str){
         return encode(str, StandardCharsets.UTF_8.name());
     }
+
+    /**
+     * 解码uri字符串
+     * @param str 原始字符
+     * @param charset 编码类型
+     * @return 解码后的字符
+     */
+    public static String decode(String str, Charset charset){
+        try {
+            return URLDecoder.decode(str, charset.name());
+        } catch (UnsupportedEncodingException ignored) {
+            throw new RuntimeException("");
+        }
+    }
+
+    /**
+     * 解码uri字符串，此方法将使用utf-8编码解码
+     * @param str 原始字符
+     * @return 解码后字符
+     */
+    public static String decode(String str){
+        return decode(str, StandardCharsets.UTF_8);
+    }
+
 
 
 }
