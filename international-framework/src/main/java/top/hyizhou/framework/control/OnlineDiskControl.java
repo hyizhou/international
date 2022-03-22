@@ -53,6 +53,8 @@ public class OnlineDiskControl extends DiskControlBase{
      */
     @ModelAttribute
     private void findUser(@AuthenticationPrincipal UserDetails userDetails, HttpServletRequest req, Model model){
+        // uri从索引为2开始取出path
+        int cutLen = 2;
         // 一般经过验证的不太可能是null，若是null则表示没有登录
         if (userDetails == null){
             throw new UsernameNotFoundException("没有用户登入");
@@ -67,7 +69,7 @@ public class OnlineDiskControl extends DiskControlBase{
         // 尝试在此获取path：本控制器中的uri结构都是/netDisk/具体方法/path...，因此可通过从第三层取后面值获取path
         Path path = Paths.get(req.getRequestURI());
         String pathStr = "";
-        if (path.getNameCount() > 2){
+        if (path.getNameCount() > cutLen){
             pathStr = UrlUtil.decode(path.subpath(2, path.getNameCount()).toString());
         }
         model.addAttribute(PATH, pathStr);
@@ -126,7 +128,7 @@ public class OnlineDiskControl extends DiskControlBase{
     }
 
     /**
-     * 进行更新操作，包括移动，删除，重命名，复制
+     * 进行更新操作，包括移动，重命名，复制
      * @param user 用户对象
      * @param body 操作的原路径和目标路径
      */
@@ -134,6 +136,10 @@ public class OnlineDiskControl extends DiskControlBase{
     public Resp<?> update(@ModelAttribute(USER) User user, @RequestBody OnlineDiskUpdateBody body){
         String oldPath = body.getOldPath();
         String targetPath = body.getTargetPath();
+        //检查路径是否异常
+        if (isBadPath(oldPath) || isBadPath(targetPath)) {
+            return new Resp<>(RespCode.ERROR, "文件路径异常", null);
+        }
         try{
             switch (body.getType()){
                 // 重命名
@@ -145,7 +151,7 @@ public class OnlineDiskControl extends DiskControlBase{
                     service.move(user, oldPath, targetPath);
                     break;
                 case 3:
-                    // 复制
+                    // 复制， 需要指定复制后的名称
                     service.copy(user, oldPath, targetPath);
                     break;
                 default:
@@ -155,6 +161,59 @@ public class OnlineDiskControl extends DiskControlBase{
         } catch (OnLineDiskException e) {
             return new Resp<>(RespCode.ERROR, e.getMessage(), null);
         }
+    }
+
+    /**
+     * 删除一个路径上的文件或目录
+     */
+    @DeleteMapping("/delete/**")
+    public Resp<?> delete(@ModelAttribute(USER) User user, @ModelAttribute(PATH) String path){
+        try {
+            service.rmPath(user, path);
+            return new Resp<>(RespCode.OK, null, null);
+        } catch (OnLineDiskException e) {
+            return new Resp<>(RespCode.ERROR, e.getMessage(), null);
+        }
+    }
+
+    /**
+     * 创建新目录
+     */
+    @PostMapping("/mkdir/**")
+    public Resp<?> mkdir(@ModelAttribute(USER) User user, @ModelAttribute(PATH) String path){
+        try{
+            service.mkdirOrFile(user, path, true);
+            return new Resp<>(RespCode.OK, null, null);
+        } catch (OnLineDiskException e) {
+            return new Resp<>(RespCode.ERROR, e.getMessage(), null);
+        }
+    }
+
+    /**
+     * 获取文件或目录详情
+     */
+    @GetMapping("/details/**")
+    public Resp<OnlinediskFileDetail> getFileDetail(@ModelAttribute(USER) User user, @ModelAttribute(PATH) String path){
+        try{
+            OnlinediskFileDetail fileDetail = service.getFileDetail(user, path);
+            return new Resp<>(RespCode.OK, null, fileDetail);
+        } catch (OnLineDiskException e) {
+            return new Resp<>(RespCode.ERROR, e.getMessage(), null);
+        }
+    }
+
+    /**
+     * 检查路径是否存在问题
+     * @return true则是有问题路径
+     */
+    private boolean isBadPath(String pathStr){
+        Path path = Paths.get(pathStr);
+        for (int i = 0; i < path.getNameCount(); i++) {
+            if ("..".equals(path.getName(i).toString())){
+                return true;
+            }
+        }
+        return false;
     }
 
 }

@@ -121,7 +121,7 @@ public class LocalWarehouse implements Warehouse {
     public boolean move(String path, String newPath) {
         path = FilesUtil.join(root, path);
         try {
-            FilesUtil.mv(new File(path), Paths.get(newPath).toFile());
+            FilesUtil.mv(new File(path), Paths.get(root, newPath).toFile());
         } catch (IOException e) {
             logger.error("仓库移动失败");
             logger.error("", e);

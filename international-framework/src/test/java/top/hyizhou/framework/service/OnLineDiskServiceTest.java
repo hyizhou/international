@@ -100,8 +100,8 @@ public class OnLineDiskServiceTest {
     @Test
     public void rmPath() throws OnLineDiskException {
         System.out.println("文件删除方法测试开始");
-        boolean b = service.rmPath(testUser, "");
-        System.out.println("文件删除成功？ "+b);
+        service.rmPath(testUser, "");
+        System.out.println("文件删除成功？ ");
         System.out.println("文件删除方法测试结束");
 
     }

@@ -42,6 +42,8 @@ import java.util.List;
  *     + 复：恢复删除文件（待定）
  *   - 分享
  *     + 分享文件/目录、获取分享文件、查看分享文件/目录详情、取消分享
+ *
+ * 存在问题：产生异常数据库能回滚但是创建或删除的文件不能回滚
  * @author hyizhou
  * @date 2022/2/1
  */
@@ -283,14 +285,21 @@ public class OnLineDiskService {
      * @param targetPath 目标文件路径
      * @throws OnLineDiskException
      */
+    @Transactional
     public void copy(User user, String path, String targetPath) throws OnLineDiskException{
         OnLineDisk onLineDiskData = findOnLineDiskData(user);
         path = FilesUtil.join(onLineDiskData.getDirName(), path);
         targetPath = FilesUtil.join(onLineDiskData.getDirName(), targetPath);
+
         if(!warehouse.copy(path, targetPath)){
             log.error("云盘复制失败");
             throw new OnLineDiskException("请检查路径");
         }
+        Long size = warehouse.getFileInfo(targetPath).getLength();
+        // 数据库中增加复制的文件大小
+        OnLineDisk userDisk = onLineDiskMapper.findById(user.getId());
+        userDisk.setUseSize(userDisk.getUseSize() + size);
+        onLineDiskMapper.update(userDisk);
     }
 
     /**
@@ -479,29 +488,32 @@ public class OnLineDiskService {
     /**
      * 删除一个路径，此路径可能是文件或者目录
      */
-    public boolean rmPath(User user, String path) throws OnLineDiskException {
+    @Transactional(rollbackFor = Exception.class)
+    public void rmPath(User user, String path) throws OnLineDiskException {
         // 验证path
         if (StrUtil.isEmpty(path) || FilesUtil.separator.equals(path) || FilesUtil.winSeparator.equals(path)){
             log.error("云盘文件删除路径异常 -- 不允许删除根目录");
-            return false;
+            throw new OnLineDiskException("不允许删除根目录");
         }
         OnLineDisk userDb = findOnLineDiskData(user);
         String dirName = userDb.getDirName();
         File file = new File(dirName);
         // 仓库对象使用的相对目录
         path = FilesUtil.join(file.getName(), path);
-        // 获取删除路径占用大小
+        // 获取目标路径文件信息
         SimpleFileInfo fileInfo = warehouse.getFileInfo(path);
+        if (fileInfo == null){
+            throw new OnLineDiskException("路径不存在");
+        }
         long size = fileInfo.getLength();
         //删除文件
         if (!warehouse.delete(path)) {
             log.error("云盘文件删除失败");
-            return false;
+            throw new OnLineDiskException("删除失败，内部异常");
         }
         //修改数据库
         userDb.setUseSize(userDb.getUseSize() - size);
         onLineDiskMapper.update(userDb);
-        return true;
     }
 
     /**
