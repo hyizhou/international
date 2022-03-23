@@ -33,6 +33,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 // 注册页面放行
                 .antMatchers("/register").permitAll()
+                .antMatchers( "/test*/**").permitAll()
+                .antMatchers( "/publicDisk/**").permitAll()
                 .antMatchers("/**").authenticated();
 
         http.formLogin()

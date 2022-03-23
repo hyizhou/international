@@ -2,6 +2,7 @@ package top.hyizhou.framework.control.interceptor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,7 +18,17 @@ public class LogInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        log.info(">>> 请求日志记录拦截器：请求地址：{}, 客户机ip：{}", request.getRequestURI(), request.getRemoteAddr());
+        if (handler instanceof HandlerMethod) {
+            log.info(">>> 请求日志记录拦截器：请求地址：{}, 客户机ip：{}，目标处理器：{}",
+                    request.getRequestURI(),
+                    request.getRemoteAddr(),
+                    ((HandlerMethod) handler).getMethod().toGenericString());
+        }else {
+            log.info(">>> 请求日志记录拦截器：请求地址：{}, 客户机ip：{}",
+                    request.getRequestURI(),
+                    request.getRemoteAddr());
+        }
+
         return true;
     }
 }
