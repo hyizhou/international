@@ -1,5 +1,6 @@
 package top.hyizhou.framework.control;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,7 @@ import java.util.List;
  * @date 2022/3/23 11:14
  */
 @RestController
+@Lazy
 @RequestMapping("/publicDisk")
 public class PublicOnlineDiskController {
     private final User publicUser;

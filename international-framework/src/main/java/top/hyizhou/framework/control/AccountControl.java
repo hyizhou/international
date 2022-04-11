@@ -4,21 +4,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+import top.hyizhou.framework.config.constant.RespCode;
 import top.hyizhou.framework.entity.MsgResp;
+import top.hyizhou.framework.entity.Resp;
 import top.hyizhou.framework.entity.User;
 import top.hyizhou.framework.service.AccountService;
 
-import java.util.Map;
-
 /**
  * 提供账户相关接口
- * TODO 对于此处的接口，需要拦截器验证其操作的是自己账户后才能放行，既然是自己账户，应该不需要在方法参数上传入用户相关信息了
  *
  * @author hyizhou
  * @date 2022/1/13 15:16
@@ -34,6 +35,19 @@ public class AccountControl {
     }
 
     /**
+     * 获取登录用户详细信息
+     * @param authentication spring security认证信息
+     */
+    @GetMapping("/details")
+    @ResponseBody
+    public Resp<?> details(Authentication authentication){
+        String accountName = authentication.getName();
+        User user = accountService.findUser(null, accountName);
+        user.setPassword(null);
+        return new Resp<>(RespCode.OK, null, user);
+    }
+
+    /**
      * 修改用户信息，依靠accountName作为唯一标识识别用户信息
      *
      * @param user 用户信息
@@ -41,37 +55,58 @@ public class AccountControl {
     @PostMapping("/modify")
     @ResponseBody
     @Transactional(rollbackFor = Exception.class)
-    public ResponseEntity<MsgResp> modify( @RequestBody User user) {
+    public ResponseEntity<?> modify( @RequestBody User user) {
         if (log.isDebugEnabled()) {
             log.debug("修改信息：{}", user.toString());
         }
         String errMsg = accountService.modify(user);
         if (errMsg == null) {
-            return ResponseEntity.status(HttpStatus.OK).body(new MsgResp(null));
+            return ResponseEntity.status(HttpStatus.OK).body(new Resp<>(RespCode.OK, "修改成功", null));
         } else {
-            return ResponseEntity.status(400).body(new MsgResp(errMsg));
+            return ResponseEntity.status(400).body(new Resp<>(RespCode.SERVER_ERROR, errMsg, null));
         }
     }
 
     /**
      * 修改账户名的接口
-     * @param map 存储旧名和新名
      */
-    @PostMapping("/modifyAcName")
+    @PutMapping("/modifyAcName")
     @ResponseBody
     @Transactional(rollbackFor = Exception.class)
-    public ResponseEntity<MsgResp> modifyAccountName(@RequestBody Map<String, String> map) {
-
-        String oldName = map.get("oldName");
-        String newName = map.get("newName");
+    public ResponseEntity<MsgResp> modifyAccountName(@ModelAttribute("newAcName") String newName, Authentication authentication) {
+        String oldName = authentication.getName();
         if (log.isDebugEnabled()){
             log.debug("账户名修改：{} -> {}", oldName, newName);
         }
+        User user = accountService.findUser(null, oldName);
         String errMsg = accountService.modifyAccountName(oldName, newName);
         if (errMsg != null) {
             return ResponseEntity.status(400).body(new MsgResp(errMsg));
         }
+        user = accountService.findUser(user.getId(), null);
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(user.getAccountName(), authentication.getCredentials(), authentication.getAuthorities()));
+        log.info("修改账户名成功");
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    /**
+     * 修改用户名
+     * @param userDetails spring security中用户信息
+     * @param newUserName 新用户名
+     */
+    @PutMapping("/modifyUserName")
+    @ResponseBody
+    public Resp<?> modifyUserName(@AuthenticationPrincipal UserDetails userDetails, @ModelAttribute("newUserName") String newUserName){
+        String accountName = userDetails.getUsername();
+        User user = accountService.findUser(null, accountName);
+        user.setName(newUserName);
+        String msg = accountService.modify(user);
+        if (msg == null){
+            return new Resp<>(RespCode.OK, null, null);
+        }else {
+            log.error(">> 修改用户名失败，错误原因：{}", msg);
+            return new Resp<>(RespCode.SERVER_ERROR, msg, null);
+        }
     }
 
     /**
@@ -80,10 +115,9 @@ public class AccountControl {
      */
     public MsgResp cancelAccount(User user){
         if (accountService.deleteAccount(user.getId())) {
-            return new MsgResp(null);
+            return new MsgResp("注销成功");
         }
         return new MsgResp("注销账号失败");
     }
-
 
 }

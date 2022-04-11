@@ -9,6 +9,7 @@
         <result column="info_id" jdbcType="INTEGER" property="infoId"/>
         <result column="shared_time" jdbcType="TIMESTAMP" property="sharedTime"/>
         <result column="nu_down" jdbcType="INTEGER" property="nuDown"/>
+        <result column="passwd" jdbcType="VARCHAR" property="passwd"/>
     </resultMap>
     <insert id="insert">
         insert into shared
@@ -24,7 +25,10 @@
                 `shared_time`,
             </if>
             <if test="nuDown != null">
-                `nu_down`
+                `nu_down`,
+            </if>
+            <if test="passwd != null">
+                `passwd`
             </if>
         </trim>
         values
@@ -40,7 +44,10 @@
                 #{sharedTime},
             </if>
             <if test="nuDown != null">
-                #{nuDown}
+                #{nuDown},
+            </if>
+            <if test="passwd != null">
+                #{passwd}
             </if>
         </trim>
     </insert>
@@ -64,6 +71,9 @@
             </if>
             <if test="nuDown != null">
                 `nu_down`=#{nuDown}
+            </if>
+            <if test="passwd != null">
+                `passwd`=#{passwd}
             </if>
         </set>
         <where>

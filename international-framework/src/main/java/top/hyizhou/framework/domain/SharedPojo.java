@@ -18,6 +18,8 @@ public class SharedPojo {
     private Date sharedTime;
     /** 下载次数 */
     private Integer nuDown;
+    /** 提取密码 */
+    private String passwd;
 
     public Integer getId() {
         return id;
@@ -73,6 +75,14 @@ public class SharedPojo {
 
     public void setNuDown(Integer nuDown) {
         this.nuDown = nuDown;
+    }
+
+    public String getPasswd() {
+        return passwd;
+    }
+
+    public void setPasswd(String passwd) {
+        this.passwd = passwd;
     }
 
     @Override

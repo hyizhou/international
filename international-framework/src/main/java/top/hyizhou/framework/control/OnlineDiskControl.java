@@ -1,5 +1,7 @@
 package top.hyizhou.framework.control;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -9,7 +11,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.ui.Model;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import top.hyizhou.framework.config.constant.RespCode;
@@ -35,15 +36,16 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/netDisk/")
-public class OnlineDiskControl extends DiskControlBase{
+public class OnlineDiskControl{
+    private final Logger log;
     private static final String URI = "uri";
     private static final String USER = "user";
     private static final String PATH = "path";
     private final OnLineDiskService service;
     private final AccountService accountService;
 
-    public OnlineDiskControl(AntPathMatcher matcher, AccountService accountService, OnLineDiskService service) {
-        super(matcher);
+    public OnlineDiskControl(AccountService accountService, OnLineDiskService service) {
+        this.log = LoggerFactory.getLogger(this.getClass());
         this.service = service;
         this.accountService = accountService;
     }
