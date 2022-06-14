@@ -21,7 +21,7 @@ import top.hyizhou.framework.service.OnLineDiskService;
 @RestController
 @RequestMapping("/shared")
 public class OnlineDiskSharedController {
-    private Logger log = LoggerFactory.getLogger(OnlineDiskSharedController.class);
+    private final Logger log = LoggerFactory.getLogger(OnlineDiskSharedController.class);
     private OnLineDiskService service;
 
     /**
